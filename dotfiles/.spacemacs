@@ -576,6 +576,9 @@ before packages are loaded."
 
   ;; enable fill column ruler
   (global-display-fill-column-indicator-mode)
+
+  ;; standard is fd, bad if you program using file descriptors
+  (setq-default evil-escape-key-sequence "fz")
 )
 
 
