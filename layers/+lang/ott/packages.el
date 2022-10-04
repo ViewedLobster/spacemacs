@@ -33,7 +33,7 @@
   )
 
 (defun spacemacs-ott/ott-open-pdf (file)
-  (async-shell-command (format "open %s" (shell-quote-argument file)))
+  (shell-command (format "open %s &" (shell-quote-argument file)))
   )
 
 (defun ott/init-ott-mode ()
