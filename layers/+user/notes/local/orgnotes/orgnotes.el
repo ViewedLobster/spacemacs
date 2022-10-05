@@ -19,9 +19,7 @@
 
 'weekly: open weekly note for current week"
   (interactive "xNote scope: ")
-  (let ((week (substring (shell-command-to-string
-                          "date -v -Mon \"+%Y-%m-%d\"")
-                         0 -1))
+  (let ((week (orgnotes-start-of-week))
         (day (substring (shell-command-to-string
                           "date \"+%Y-%m-%d--%a\"")
                          0 -1)))
@@ -42,6 +40,23 @@
                                            0 -1)))
                  (find-file (format "%s/%s%s.org" dir timestamp extra))))))))
 )
+
+(defun orgnotes-start-of-week ()
+  (let ((os (substring (shell-command-to-string "uname") 0 -1)))
+    (if (eq os "Darwin")
+        (substring (shell-command-to-string
+                    "date -v -Mon \"+%Y-%m-%d\"")
+                   0 -1)
+      (let ((day (substring (shell-command-to-string
+                             "date \"+%u\"")
+                             0 -1)))
+        (if (eq day "1")
+            (substring (shell-command-to-string
+                        "date \"+%Y-%m-%d\"")
+                        0 -1)
+          (substring (shell-command-to-string
+                      "date --date='last monday' \"+%Y-%m-%d\"")
+                      0 -1))))))
 
 (defun orgnotes-open-daily ()
   "Open today's note"
