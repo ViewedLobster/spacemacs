@@ -11,6 +11,10 @@
       (make-directory dir t)
       t)))
 
+(defun orgnotes-date-command (cmd)
+  (let ((datecmd "LC_TIME=en_US.UTF-8 date "))
+    (shell-command-to-string (concat datecmd cmd))))
+
 (defun orgnotes-open-note (kind &optional name)
   "Open org note. kind can be any of the following:
 'nowly : open new note with timestamp under notesdir/<weekstart>/<today>/.
@@ -20,8 +24,8 @@
 'weekly: open weekly note for current week"
   (interactive "xNote scope: ")
   (let ((week (orgnotes-start-of-week))
-        (day (substring (shell-command-to-string
-                          "date \"+%Y-%m-%d--%a\"")
+        (day (substring (orgnotes-date-command
+                          "\"+%Y-%m-%d--%a\"")
                          0 -1)))
     (let ((dir (if (eq kind 'weekly)
                    (format "%s/%s" orgnotes-base-dir week)
@@ -35,8 +39,8 @@
                (let ((extra (if name
                                 (format "-%s" name)
                               ""))
-                     (timestamp (substring (shell-command-to-string
-                                            "date \"+%Y-%m-%d--%H:%M:%S\"")
+                     (timestamp (substring (orgnotes-date-command
+                                            "\"+%Y-%m-%d--%H:%M:%S\"")
                                            0 -1)))
                  (find-file (format "%s/%s%s.org" dir timestamp extra))))))))
 )
@@ -44,18 +48,18 @@
 (defun orgnotes-start-of-week ()
   (let ((os (substring (shell-command-to-string "uname") 0 -1)))
     (if (string-equal os "Darwin")
-        (substring (shell-command-to-string
-                    "date -v -Mon \"+%Y-%m-%d\"")
+        (substring (orgnotes-date-command
+                    "-v -Mon \"+%Y-%m-%d\"")
                    0 -1)
-      (let ((day (substring (shell-command-to-string
-                             "date \"+%u\"")
+      (let ((day (substring (orgnotes-date-command
+                             "\"+%u\"")
                              0 -1)))
         (if (eq day "1")
-            (substring (shell-command-to-string
-                        "date \"+%Y-%m-%d\"")
+            (substring (orgnotes-date-command
+                        "\"+%Y-%m-%d\"")
                         0 -1)
-          (substring (shell-command-to-string
-                      "date --date='last monday' \"+%Y-%m-%d\"")
+          (substring (orgnotes-date-command
+                      "--date='last monday' \"+%Y-%m-%d\"")
                       0 -1))))))
 
 (defun orgnotes-open-daily ()
