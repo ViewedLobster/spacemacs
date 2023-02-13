@@ -43,7 +43,7 @@
 
 (defun orgnotes-start-of-week ()
   (let ((os (substring (shell-command-to-string "uname") 0 -1)))
-    (if (eq os "Darwin")
+    (if (string-equal os "Darwin")
         (substring (shell-command-to-string
                     "date -v -Mon \"+%Y-%m-%d\"")
                    0 -1)

@@ -42,6 +42,7 @@ This function should only modify configuration layer settings."
      spacemacs-completion
      spacemacs-project
      spacemacs-defaults
+     spacemacs-visual
      themes-megapack
      ;; auto-completion
      ;; better-defaults
@@ -65,7 +66,9 @@ This function should only modify configuration layer settings."
      rust
      idris
      ;; ------------------- user defined utilities ---------------
-     notes)
+     notes
+     ;;whitespace-hell
+     )
 
 
    ;; List of additional packages that will be installed without being wrapped
@@ -242,9 +245,8 @@ It should only modify the values of Spacemacs settings."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(doom-dracula
-                         spacemacs-dark
-                         spacemacs-light)
+   dotspacemacs-themes '(doom-tomorrow-night-custom
+                         doom-tomorrow-day)
 
    ;; Set the theme for the Spaceline. Supported themes are `spacemacs',
    ;; `all-the-icons', `custom', `doom', `vim-powerline' and `vanilla'. The
@@ -263,8 +265,8 @@ It should only modify the values of Spacemacs settings."
    ;; a non-negative integer (pixel size), or a floating-point (point size).
    ;; Point size is recommended, because it's device independent. (default 10.0)
    dotspacemacs-default-font '("Source Code Pro"
-                               :size 15.0
-                               :weight normal
+                               :size 14.0
+                               :weight demibold
                                :width normal)
 
    ;; The leader key (default "SPC")
@@ -569,6 +571,17 @@ dump."
   ;; haskell-indentation-where-pre-offset
   ;; haskell-indentation-where-post-offset
   )
+
+(defun dotspacemacs/user-config/remap-insert-state ()
+  (define-key evil-insert-state-map "\t" 'self-insert-command)
+  (define-key evil-insert-state-map (kbd "<backtab>") 'indent-for-tab-command))
+;; wanna map tab to backtab and backtab to tab
+(defun dotspacemacs/user-config/remap-tab ()
+  )
+
+(defun dotspacemacs/user-config/remap-c-mode ()
+  (define-key c-mode-map (kbd "<backtab>") 'c-indent-line-or-region))
+
 
 (defun dotspacemacs/user-config ()
   "Configuration for user code:
