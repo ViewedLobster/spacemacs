@@ -1,6 +1,6 @@
-;;; core-funcs.el --- Spacemacs Core File
+;;; core-funcs.el --- Spacemacs Core File -*- lexical-binding: t -*-
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -20,9 +20,6 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-(defvar configuration-layer--protected-packages)
-(defvar dotspacemacs-filepath)
 (defvar spacemacs-repl-list '()
   "List of all registered REPLs.")
 
@@ -94,14 +91,14 @@ and its values are removed."
       (push (pop tail) result))
     (nreverse result)))
 
-;; Originally based on http://stackoverflow.com/questions/2321904/elisp-how-to-save-data-in-a-file
+;; Originally based on https://stackoverflow.com/a/2322164
 (defun spacemacs/dump-vars-to-file (varlist filename)
   "simplistic dumping of variables in VARLIST to a file FILENAME"
   (with-temp-file filename
     (spacemacs/dump-vars varlist (current-buffer))
     (make-directory (file-name-directory filename) t)))
 
-;; From http://stackoverflow.com/questions/2321904/elisp-how-to-save-data-in-a-file
+;; From https://stackoverflow.com/a/2322164
 (defun spacemacs/dump-vars (varlist buffer)
   "insert into buffer the setq statement to recreate the variables in VARLIST"
   (cl-loop for var in varlist do
@@ -163,7 +160,7 @@ The buffer's major mode should be `org-mode'."
   (if (require 'space-doc nil t)
       (space-doc-mode)
     ;; Make ~SPC ,~ work, reference:
-    ;; http://stackoverflow.com/questions/24169333/how-can-i-emphasize-or-verbatim-quote-a-comma-in-org-mode
+    ;; https://stackoverflow.com/a/24173780
     (setcar (nthcdr 2 org-emphasis-regexp-components) " \t\n")
     (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
     (setq-local org-emphasis-alist '(("*" bold)
@@ -305,7 +302,7 @@ buffer."
           . (,feature . ,repl-func))
         spacemacs-repl-list))
 
-;; http://stackoverflow.com/questions/11847547/emacs-regexp-count-occurrences
+;; https://stackoverflow.com/a/11848341
 (defun spacemacs/how-many-str (regexp str)
   (cl-loop with start = 0
            for count from 0

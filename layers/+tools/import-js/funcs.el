@@ -1,6 +1,6 @@
 ;;; funcs.el --- import-js Layer packages file for Spacemacs
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Thanh Vuong <thanhvg@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -24,11 +24,11 @@
 (defun spacemacs/import-js-fix ()
   (interactive)
   (import-js-fix)
-  (if (bound-and-true-p flycheck-mode)
-      (flycheck-buffer)))
+  (when (bound-and-true-p flycheck-mode)
+    (flycheck-buffer)))
 
 (defun spacemacs/import-js-import ()
   (interactive)
   (import-js-import)
-  (if (bound-and-true-p flycheck-mode)
-      (flycheck-buffer)))
+  (when (bound-and-true-p flycheck-mode)
+    (flycheck-buffer)))

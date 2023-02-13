@@ -1,6 +1,6 @@
-;;; core-spacemacs.el --- Spacemacs Core File
+;;; core-spacemacs.el --- Spacemacs Core File -*- lexical-binding: t -*-
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -124,8 +124,8 @@ found."
     (async-start
      `(lambda ()
         ,(async-inject-variables "\\`spacemacs-start-directory\\'")
-        (load-file (concat spacemacs-start-directory
-                           "core/core-load-paths.el"))
+        (load (concat spacemacs-start-directory
+                      "core/core-load-paths"))
         (require 'core-spacemacs)
         (spacemacs/get-last-version))
      (lambda (result)
@@ -342,7 +342,7 @@ Returns the output of git status --porcelain."
                       (symbol-name state))
              :group 'spacemacs))
     (set-face-attribute fname nil
-                        :foreground foreground
+                        :foreground (or foreground 'unspecified)
                         :box (face-attribute 'mode-line :box))))
 
 (defun spacemacs//compute-version-score (version)

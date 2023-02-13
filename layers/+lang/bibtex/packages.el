@@ -1,6 +1,6 @@
 ;;; packages.el --- BibTeX Layer packages file for Spacemacs.
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Joshua Ellis <josh@jpellis.me>
 ;; URL: https://github.com/JP-Ellis
@@ -152,6 +152,7 @@
       :mode biblio-selection-mode
       :bindings
       "e" 'ebib-biblio-selection-import
+      "B" 'ebib-biblio-import-doi
       (kbd "C-j") 'biblio--selection-next
       (kbd "C-k") 'biblio--selection-previous)))
 

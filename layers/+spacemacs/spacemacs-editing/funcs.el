@@ -1,6 +1,6 @@
 ;;; funcs.el --- Spacemacs editing Layer functions File
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -115,8 +115,8 @@ If `global' is non-nil activate the respective global mode."
 (defun spacemacs//adaptive-smartparent-pair-overlay-face ()
   (set-face-attribute 'sp-pair-overlay-face nil
                       :inherit 'lazy-highlight
-                      :background nil
-                      :foreground nil))
+                      :background 'unspecified
+                      :foreground 'unspecified))
 
 (defun spacemacs//put-clean-aindent-last ()
   "Put `clean-aindent--check-last-point` to end of `post-command-hook`.

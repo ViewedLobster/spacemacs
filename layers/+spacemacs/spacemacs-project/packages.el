@@ -1,6 +1,6 @@
 ;;; packages.el --- Spacemacs Project Management Layer packages File
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -20,13 +20,8 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-
-(setq spacemacs-project-packages
-      '(
-        projectile
-        ))
-
+(defconst spacemacs-project-packages
+  '(projectile))
 
 (defun spacemacs-project/init-projectile ()
   (use-package projectile
@@ -82,13 +77,16 @@
         "pa" 'projectile-toggle-between-implementation-and-test
         "pb" 'projectile-switch-to-buffer
         "pc" 'projectile-compile-project
+        "pu" 'projectile-run-project
         "pd" 'projectile-find-dir
         "pD" 'projectile-dired
         "pe" 'projectile-edit-dir-locals
         "pf" 'projectile-find-file
         "pF" 'projectile-find-file-dwim
+        "pE" 'projectile-find-references
         "pg" 'projectile-find-tag
         "pG" 'projectile-regenerate-tags
+        "pi" 'projectile-install-project
         "pI" 'projectile-invalidate-cache
         "pk" 'projectile-kill-buffers
         "pp" 'projectile-switch-project

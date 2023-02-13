@@ -1,6 +1,6 @@
 ;;; packages.el --- Python Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -24,6 +24,7 @@
 (defconst python-packages
   '(
     blacken
+    code-cells
     company
     counsel-gtags
     cython-mode
@@ -46,7 +47,7 @@
     py-isort
     pydoc
     pyenv-mode
-    (pylookup :location local)
+    (pylookup :location (recipe :fetcher local))
     pytest
     (python :location built-in)
     pyvenv
@@ -94,6 +95,18 @@
         (evil--jumps-push))
       (add-to-list 'spacemacs-jump-handlers-python-mode
                    '(anaconda-mode-find-definitions :async t)))))
+
+(defun python/init-code-cells ()
+  (use-package code-cells
+    :if (not (configuration-layer/layer-used-p 'ipython-notebook))
+    :defer t
+    :commands (code-cells-mode)
+    :init (add-hook 'python-mode-hook 'code-cells-mode)
+    :config (spacemacs/set-leader-keys-for-minor-mode 'code-cells-mode
+            "gB" 'code-cells-backward-cell
+            "gF" 'code-cells-forward-cell
+            "sc" 'code-cells-eval
+            "sa" 'code-cells-eval-above)))
 
 (defun python/post-init-company ()
   ;; backend specific
@@ -306,7 +319,10 @@
                    'spacemacs//pyenv-mode-set-local-version)))
       ;; setup shell correctly on environment switch
       (dolist (func '(pyenv-mode-set pyenv-mode-unset))
-        (advice-add func :after 'spacemacs/python-setup-everything))
+        (advice-add func :after
+                    (lambda (&optional version)
+                      (spacemacs/python-setup-everything
+                       (when version (pyenv-mode-full-path version))))))
       (spacemacs/set-leader-keys-for-major-mode 'python-mode
         "vu" 'pyenv-mode-unset
         "vs" 'pyenv-mode-set))))
@@ -340,17 +356,16 @@
   (use-package pylookup
     :commands (pylookup-lookup pylookup-update pylookup-update-all)
     :init
-    (progn
-      (evilified-state-evilify pylookup-mode pylookup-mode-map)
-      (spacemacs/set-leader-keys-for-major-mode 'python-mode
-        "hH" 'pylookup-lookup))
+    (spacemacs/set-leader-keys-for-major-mode 'python-mode
+      "hH" 'pylookup-lookup)
     :config
-    (progn
-      (let ((dir (configuration-layer/get-layer-local-dir 'python)))
-        (setq pylookup-dir (concat dir "pylookup/")
-              pylookup-program (concat pylookup-dir "pylookup.py")
-              pylookup-db-file (concat pylookup-dir "pylookup.db")))
-      (setq pylookup-completing-read 'completing-read))))
+    (evilified-state-evilify-map pylookup-mode-map
+      :mode pylookup-mode)
+    (let ((dir (configuration-layer/get-layer-local-dir 'python)))
+      (setq pylookup-dir (concat dir "pylookup/")
+            pylookup-program (concat pylookup-dir "pylookup.py")
+            pylookup-db-file (concat pylookup-dir "pylookup.db")))
+    (setq pylookup-completing-read 'completing-read)))
 
 (defun python/init-pytest ()
   (use-package pytest
@@ -375,10 +390,7 @@
                                'spacemacs/python-start-or-switch-repl "python")
       (spacemacs//bind-python-repl-keys)
       (add-hook 'python-mode-local-vars-hook 'spacemacs//python-setup-backend)
-      (add-hook 'python-mode-hook 'spacemacs//python-default)
-      ;; call `spacemacs//python-setup-shell' once, don't put it in a hook
-      ;; (see issue #5988)
-      (spacemacs//python-setup-shell))
+      (add-hook 'python-mode-hook 'spacemacs//python-default))
     :config
     (progn
       ;; add support for `ahs-range-beginning-of-defun' for python-mode
@@ -412,6 +424,8 @@
         "sl" 'spacemacs/python-shell-send-line
         "ss" 'spacemacs/python-shell-send-with-output)
 
+      (setq spacemacs--python-shell-interpreter-origin
+            (eval (car (get 'python-shell-interpreter 'standard-value))))
       ;; Set `python-indent-guess-indent-offset' to `nil' to prevent guessing `python-indent-offset
       ;; (we call python-indent-guess-indent-offset manually so python-mode does not need to do it)
       (setq-default python-indent-guess-indent-offset nil)

@@ -1,6 +1,6 @@
 ;;; packages.el --- Spacemacs Mode-line Visual Layer packages File
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -33,11 +33,10 @@
         (font-lock+ :step pre
                     :location (recipe :fetcher github
                                       :repo emacsmirror/font-lock-plus))
-        neotree
         spaceline
         spaceline-all-the-icons
         symon
-        (vim-powerline :location local)))
+        (vim-powerline :location (recipe :fetcher local))))
 
 (defun spacemacs-modeline/post-init-anzu ()
   (when (eq 'all-the-icons (spacemacs/get-mode-line-theme-name))
@@ -64,10 +63,6 @@
       (setq-default fancy-battery-show-percentage t))))
 
 (defun spacemacs-modeline/init-font-lock+ ())
-
-(defun spacemacs-modeline/post-init-neotree ()
-  (when (eq 'all-the-icons (spacemacs/get-mode-line-theme-name))
-    (spaceline-all-the-icons--setup-neotree)))
 
 (defun spacemacs-modeline/init-spaceline ()
   (use-package spaceline-config
@@ -191,7 +186,11 @@
        spaceline-all-the-icons-separator-type
        (or (spacemacs/mode-line-separator) 'wave)
        spaceline-all-the-icons-separator-scale
-       (or (spacemacs/mode-line-separator-scale) 1.6)))))
+       (or (spacemacs/mode-line-separator-scale) 1.6)))
+    :config
+    (when (and (eq 'all-the-icons (spacemacs/get-mode-line-theme-name))
+               (configuration-layer/package-used-p 'neotree))
+      (spaceline-all-the-icons--setup-neotree))))
 
 (defun spacemacs-modeline/init-symon ()
   (use-package symon

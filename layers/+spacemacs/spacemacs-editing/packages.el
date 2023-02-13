@@ -1,6 +1,6 @@
 ;;; packages.el --- Spacemacs Editing Layer packages File
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -40,8 +40,8 @@
     pcre2el
     (smartparens :toggle dotspacemacs-activate-smartparens-mode)
     (evil-swap-keys :toggle dotspacemacs-swap-number-row)
-    (spacemacs-whitespace-cleanup :location local)
-    string-edit
+    (spacemacs-whitespace-cleanup :location (recipe :fetcher local))
+    string-edit-at-point
     string-inflection
     multi-line
     undo-tree
@@ -232,6 +232,7 @@
       :evil-leader "td")
     :config
     (progn
+      (nconc hungry-delete-except-modes '(term-mode vterm-mode))
       (setq-default hungry-delete-chars-to-skip " \t\f\v") ; only horizontal whitespace
       (define-key hungry-delete-mode-map (kbd "DEL") 'hungry-delete-backward)
       (define-key hungry-delete-mode-map (kbd "S-DEL") 'delete-backward-char))))
@@ -506,11 +507,13 @@
         "xiu" 'string-inflection-underscore
         "xiU" 'string-inflection-upcase))))
 
-(defun spacemacs-editing/init-string-edit ()
-  (use-package string-edit
+(defun spacemacs-editing/init-string-edit-at-point ()
+  (use-package string-edit-at-point
+    :defer t
     :init
     (spacemacs/set-leader-keys "xe" 'string-edit-at-point)
-    (spacemacs/set-leader-keys-for-minor-mode 'string-edit-mode
+    :config
+    (spacemacs/set-leader-keys-for-minor-mode 'string-edit-at-point-mode
       "," 'string-edit-conclude
       "c" 'string-edit-conclude
       "a" 'string-edit-abort
@@ -535,6 +538,8 @@
     (progn
       (setq undo-tree-visualizer-timestamps t
             undo-tree-visualizer-diff t
+            ;; See `vim-style-enable-undo-region'.
+            undo-tree-enable-undo-in-region t
             ;; 10X bump of the undo limits to avoid issues with premature
             ;; Emacs GC which truncages the undo history very aggresively
             undo-limit 800000

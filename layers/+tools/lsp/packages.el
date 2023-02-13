@@ -1,6 +1,6 @@
 ;;; packages.el --- Language Server Protocol Layer packages file for Spacemacs
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Fangrui Song <i@maskray.me>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -40,7 +40,8 @@
           lsp-session-file (concat lsp-server-install-dir (file-name-nondirectory ".lsp-session-v1"))
           lsp-eslint-library-choices-file (concat lsp-server-install-dir ".lsp-eslint-choices")
           lsp-yaml-schema-store-local-db (concat lsp-server-install-dir "lsp-yaml-schemas.json")
-          lsp-vetur-global-snippets-dir (concat spacemacs-start-directory "snippets/vetur"))
+          lsp-vetur-global-snippets-dir (concat spacemacs-start-directory "snippets/vetur")
+          lsp-imenu-index-function #'lsp-imenu-create-categorized-index)
     ;; If you find something else should be ignored, you could also set them here
     :config
     (progn
@@ -77,9 +78,7 @@
 (defun lsp/init-consult-lsp ()
   (use-package consult-lsp
     :defer t
-    :after (lsp-mode)
-    :config
-     (consult-lsp-marginalia-mode 1)))
+    :after (lsp-mode)))
 
 (defun lsp/init-lsp-treemacs ()
   (use-package lsp-treemacs :defer t))

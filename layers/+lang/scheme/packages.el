@@ -1,6 +1,6 @@
 ;;; packages.el --- Scheme Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -41,7 +41,7 @@
 
 (defun scheme/post-init-company ()
   ;; Geiser provides completion as long as company mode is loaded.
-  (spacemacs|add-company-backends :modes scheme-mode :backends geiser-company-backend))
+  (spacemacs|add-company-backends :modes scheme-mode :backends company-capf))
 
 (defun scheme/pre-init-evil-cleverparens ()
   (spacemacs|use-package-add-hook evil-cleverparens

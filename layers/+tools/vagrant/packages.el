@@ -1,6 +1,6 @@
 ;;; packages.el --- Vagrant Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Brian Hicks <brian@brianthicks.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -41,6 +41,11 @@
         "atvS" 'vagrant-suspend
         "atvV" 'vagrant-up))))
 
+(defun spacemacs/vagrant-ssh ()
+  (interactive)
+  (call-interactively (if (eq shell-default-shell 'shell)
+                          'vagrant-tramp-shell
+                        'vagrant-tramp-term)))
 (defun vagrant/init-vagrant-tramp ()
   (use-package vagrant-tramp
     :defer t
@@ -52,4 +57,4 @@
         (unless spacemacs--vagrant-tramp-loaded
           (vagrant-tramp-add-method)
           (setq spacemacs--vagrant-tramp-loaded t)))
-      (spacemacs/set-leader-keys "atvt" 'vagrant-tramp-term))))
+      (spacemacs/set-leader-keys "atvt" 'spacemacs/vagrant-ssh))))

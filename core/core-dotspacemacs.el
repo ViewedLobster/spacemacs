@@ -1,6 +1,6 @@
-;;; core-dotspacemacs.el --- Spacemacs Core File
+;;; core-dotspacemacs.el --- Spacemacs Core File -*- lexical-binding: t -*-
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -20,7 +20,7 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
+(require 'core-load-paths)
 (require 'core-customization)
 
 (defconst dotspacemacs-template-directory
@@ -35,38 +35,35 @@
 Useful for users in order to given them a hint of potential bottleneck in
 their configuration.")
 
-(let* ((env (getenv "SPACEMACSDIR"))
-       (env-dir (when env (expand-file-name (concat env "/"))))
-       (env-init (and env-dir (expand-file-name "init.el" env-dir)))
-       (no-env-dir-default (expand-file-name
-                            (concat user-home-directory
-                                    ".spacemacs.d/")))
-       (default-init (expand-file-name ".spacemacs" user-home-directory)))
-  (defconst dotspacemacs-directory
-    (cond
-     ((and env (file-exists-p env-dir)) env-dir)
-     ((file-exists-p no-env-dir-default) no-env-dir-default)
-     (t nil))
-    "Optional spacemacs directory, which defaults to
-~/.spacemacs.d. This setting can be overridden using the
-SPACEMACSDIR environment variable. If neither of these
-directories exist, this variable will be nil.")
+(defconst dotspacemacs-directory
+  (let* ((spacemacs-dir-env (getenv "SPACEMACSDIR"))
+         (spacemacs-dir (if spacemacs-dir-env
+                            (expand-file-name (concat spacemacs-dir-env "/"))
+                          (expand-file-name ".spacemacs.d/" user-home-directory))))
+    (when (file-directory-p spacemacs-dir)
+      spacemacs-dir))
+  "Directory containing Spacemacs customizations (defaults to nil).
+- If environment variable SPACEMACSDIR is set and the directory exists,
+  use that value.
+- Otherwise use $HOME/.spacemacs.d if it exists.")
 
-  (defvar dotspacemacs-filepath
-    (let ((spacemacs-dir-init (when dotspacemacs-directory
-                                (concat dotspacemacs-directory
-                                        "init.el"))))
-      (cond
-       (env-init)
-       ((file-exists-p default-init) default-init)
-       ((and dotspacemacs-directory (file-exists-p spacemacs-dir-init))
-        spacemacs-dir-init)
-       (t default-init)))
-    "Filepath to the installed dotfile. If SPACEMACSDIR is given
-then SPACEMACSDIR/init.el is used. Otherwise, if ~/.spacemacs
-exists, then this is used. If ~/.spacemacs does not exist, then
-check for init.el in dotspacemacs-directory and use this if it
-exists. Otherwise, fallback to ~/.spacemacs"))
+(defconst dotspacemacs-filepath
+  (let* ((spacemacs-dir-env (getenv "SPACEMACSDIR"))
+         (spacemacs-init (if spacemacs-dir-env
+                             (expand-file-name "init.el" spacemacs-dir-env)
+                           (expand-file-name ".spacemacs" user-home-directory))))
+      (if (file-regular-p spacemacs-init)
+          spacemacs-init
+        (let ((fallback-init (expand-file-name ".spacemacs.d/init.el"
+                                               user-home-directory)))
+          (if (file-regular-p fallback-init)
+              fallback-init
+            spacemacs-init))))
+  "Filepath to Spacemacs configuration file (defaults to ~/.spacemacs).
+- If environment variable SPACEMACSDIR is set and SPACEMACSDIR/init.el
+  exists, use that value.
+- Otherwise use ~/.spacemacs if it exists.
+- Otherwise use $HOME/.spacemacs.d/init.el if it exists.")
 
 (spacemacs|defc dotspacemacs-distribution 'spacemacs
   "Base distribution to use. This is a layer contained in the directory
@@ -201,6 +198,18 @@ in `dotspacemacs-themes'.")
            (const hybrid) (cons symbol sexp))
   'spacemacs-dotspacemacs-init)
 
+(defun spacemacs//support-evilified-buffer-p ()
+  "Returns non-nil if buffers should use evilified states."
+  (or (eq dotspacemacs-editing-style 'vim)
+      (and (eq dotspacemacs-editing-style 'hybrid)
+           hybrid-style-enable-evilified-state)))
+
+(defun spacemacs//support-hjkl-navigation-p ()
+  "Returns non-nil if navigation keys should be evilified."
+  (or (eq dotspacemacs-editing-style 'vim)
+      (and (eq dotspacemacs-editing-style 'hybrid)
+           hybrid-style-enable-hjkl-bindings)))
+
 (spacemacs|defc dotspacemacs-startup-banner 'official
   "Specify the startup banner. Default value is `official', it displays
 the official spacemacs logo. An integer value is the index of text
@@ -208,6 +217,13 @@ banner, `random' chooses a random text banner in `core/banners'
 directory. A string value must be a path to a .PNG file.
 If the value is nil then no banner is displayed."
   '(choice (const official) (const random) (const nil) string integer)
+  'spacemacs-dotspacemacs-init)
+
+(spacemacs|defc dotspacemacs-startup-banner-scale 'auto
+  "Specify the scale value for the startup banner. Default value is `auto',
+it displays the spacemacs logo with the scale value. A (0, 1] float value
+will be applied to scale the banner."
+  '(choice (const auto) (const nil) number)
   'spacemacs-dotspacemacs-init)
 
 (spacemacs|defc dotspacemacs-startup-buffer-show-version t
@@ -456,7 +472,7 @@ to disable fullscreen animations on macOS."
   'boolean
   'spacemacs-dotspacemacs-init)
 
-(spacemacs|defc dotspacemacs-maximized-at-startup nil
+(spacemacs|defc dotspacemacs-maximized-at-startup t
   "If non nil the frame is maximized when Emacs starts up (Emacs 24.4+ only).
 Takes effect only if `dotspacemacs-fullscreen-at-startup' is nil."
   'boolean
@@ -478,6 +494,13 @@ can be toggled through `toggle-transparency'."
   "A value from the range (0..100), in increasing opacity, which describes the
 transparency level of a frame when it's inactive or deselected. Transparency
 can be toggled through `toggle-transparency'."
+  'integer
+  'spacemacs-dotspacemacs-init)
+
+(spacemacs|defc dotspacemacs-background-transparency 90
+  "A value from the range (0..100), in increasing opacity, which describes the
+transparency level of a frame background when it's active or selected. Transparency
+can be toggled through `toggle-background-transparency'."
   'integer
   'spacemacs-dotspacemacs-init)
 
@@ -867,19 +890,18 @@ Called with `C-u C-u' skips `dotspacemacs/user-config' _and_ preliminary tests."
   (when (configuration-layer/package-used-p 'spaceline)
     (spacemacs//restore-buffers-powerline)))
 
-(defun dotspacemacs/get-variable-string-list ()
-  "Return a list of all the dotspacemacs variables as strings."
-  (all-completions "" obarray
-                   (lambda (x)
-                     (and (boundp x)
-                          (not (keywordp x))
-                          ;; avoid private variables to show up
-                          (not (string-match-p "--" (symbol-name x)))
-                          (string-prefix-p "dotspacemacs" (symbol-name x))))))
+(eval-and-compile
+  (defun dotspacemacs/get-variable-string-list ()
+    "Return a list of all the dotspacemacs variables as strings."
+    (all-completions "dotspacemacs" obarray
+                     (lambda (x)
+                       (and (boundp x)
+                            ;; avoid private variables to show up
+                            (not (string-match-p "--" (symbol-name x)))))))
 
-(defun dotspacemacs/get-variable-list ()
-  "Return a list of all dotspacemacs variable symbols."
-  (mapcar 'intern (dotspacemacs/get-variable-string-list)))
+  (defun dotspacemacs/get-variable-list ()
+    "Return a list of all dotspacemacs variable symbols."
+    (mapcar 'intern (dotspacemacs/get-variable-string-list))))
 
 (defmacro dotspacemacs|symbol-value (symbol)
   "Return the value of SYMBOL corresponding to a dotspacemacs variable.
@@ -900,8 +922,7 @@ before copying the file if the destination already exists."
                      (format "%s already exists. Do you want to overwrite it ? "
                              dotspacemacs-filepath)) t)))
     (when copy?
-      (copy-file (concat dotspacemacs-template-directory
-                         ".spacemacs.template")
+      (copy-file (expand-file-name ".spacemacs.template" dotspacemacs-template-directory)
                  dotspacemacs-filepath t)
       (message "%s has been installed." dotspacemacs-filepath))))
 
@@ -1180,8 +1201,7 @@ error recovery."
     "is one of \'all, \'any, \'current or nil")
    (spacemacs//test-list
     (lambda (x)
-      (let ((el (or (car-safe x) x))
-            (list-size (cdr-safe x)))
+      (let ((el (or (car-safe x) x)))
         (member el '(recents recents-by-project bookmarks projects todos agenda))))
     'dotspacemacs-startup-lists (concat "includes \'recents, 'recents-by-project, "
                                         "\'bookmarks, \'todos, "

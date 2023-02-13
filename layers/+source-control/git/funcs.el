@@ -1,6 +1,6 @@
 ;;; funcs.el --- Colors Layer functions File
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -72,12 +72,6 @@
   (interactive)
   (let (git-link-open-in-browser)
     (call-interactively 'git-link-commit)))
-
-(defun spacemacs//support-evilified-buffer-p ()
-  "Return non-nil if evil navigation should be enabled."
-  (or (eq dotspacemacs-editing-style 'vim)
-      (and (eq dotspacemacs-editing-style 'hybrid)
-           hybrid-style-enable-evilified-state)))
 
 
 ;; git blame transient state

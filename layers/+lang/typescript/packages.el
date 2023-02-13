@@ -1,6 +1,6 @@
 ;;; packages.el --- typescript Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Chris Bowdon <c.bowdon@bath.edu>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -101,7 +101,6 @@
 (defun typescript/post-init-web-mode ()
   (define-derived-mode typescript-tsx-mode web-mode "TypeScript-tsx")
   (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-tsx-mode))
-  (spacemacs/typescript-mode-init 'typescript-tsx-mode-local-vars-hook)
   (spacemacs/typescript-mode-config 'typescript-tsx-mode))
 
 (defun typescript/init-typescript-mode ()
@@ -110,7 +109,9 @@
     :init
     (progn
       (spacemacs/typescript-safe-local-variables '(lsp tide))
-      (spacemacs/typescript-mode-init 'typescript-mode-local-vars-hook))
+      (spacemacs/typescript-mode-init 'typescript-mode-local-vars-hook)
+      ;; init tsx locals here to get proper order 
+      (spacemacs/typescript-mode-init 'typescript-tsx-mode-local-vars-hook))
     :config (spacemacs/typescript-mode-config 'typescript-mode)))
 
 (defun typescript/pre-init-import-js ()

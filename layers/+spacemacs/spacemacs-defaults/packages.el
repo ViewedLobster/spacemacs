@@ -1,6 +1,6 @@
 ;;; packages.el --- Spacemacs Defaults Layer packages File
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -38,7 +38,7 @@
     (electric-indent-mode :location built-in)
     (ediff :location built-in)
     (eldoc :location built-in)
-    (help-fns+ :location local)
+    (help-fns+ :location (recipe :fetcher local))
     (hi-lock :location built-in)
     (image-mode :location built-in)
     (imenu :location built-in)
@@ -283,26 +283,21 @@
     :defer t
     :init
     (progn
-      (cond ((spacemacs/visual-line-numbers-p)
-             (setq display-line-numbers-type 'visual))
-            ((spacemacs/relative-line-numbers-p)
-             (setq display-line-numbers-type 'relative))
-            (t
-             (setq display-line-numbers-type t)))
+      (setq display-line-numbers-type (spacemacs/line-numbers-type))
 
       (spacemacs/declare-prefix "tn" "line-numbers")
 
       (spacemacs|add-toggle line-numbers
         :status (and (featurep 'display-line-numbers)
-                     display-line-numbers-mode
-                     (eq display-line-numbers dotspacemacs-line-numbers))
+                     display-line-numbers-mode)
         :on (prog1 (display-line-numbers-mode)
-              (setq display-line-numbers dotspacemacs-line-numbers))
+              (setq display-line-numbers (spacemacs/line-numbers-type)))
         :off (display-line-numbers-mode -1)
         :on-message "Line numbers enabled per dotspacemacs-line-numbers."
         :off-message "Line numbers disabled."
         :documentation "Show line numbers as configured in .spacemacs."
         :evil-leader "tnn")
+
       (spacemacs|add-toggle absolute-line-numbers
         :status (and (featurep 'display-line-numbers)
                      display-line-numbers-mode
@@ -314,6 +309,7 @@
         :off-message "Line numbers disabled."
         :documentation "Show absolute line numbers."
         :evil-leader "tna")
+
       (spacemacs|add-toggle relative-line-numbers
         :status (and (featurep 'display-line-numbers)
                      display-line-numbers-mode
@@ -429,7 +425,7 @@
       (add-to-list 'recentf-exclude (recentf-expand-file-name package-user-dir))
       (add-to-list 'recentf-exclude "COMMIT_EDITMSG\\'")
       (when custom-file
-        (add-to-list 'recentf-exclude custom-file)))))
+        (add-to-list 'recentf-exclude (recentf-expand-file-name custom-file))))))
 
 (defun spacemacs-defaults/init-savehist ()
   (use-package savehist
@@ -515,6 +511,7 @@
          'trailing-whitespace nil
          :background (face-attribute 'font-lock-comment-face :foreground)))
       (add-hook 'prog-mode-hook 'spacemacs//trailing-whitespace)
+      (add-hook 'text-mode-hook 'spacemacs//trailing-whitespace)
 
       (spacemacs|add-toggle whitespace
         :mode whitespace-mode
@@ -530,13 +527,13 @@
     :config
     (progn
       (set-face-attribute 'whitespace-space nil
-                          :background nil
+                          :background 'unspecified
                           :foreground (face-attribute 'font-lock-warning-face
                                                       :foreground))
       (set-face-attribute 'whitespace-tab nil
-                          :background nil)
+                          :background 'unspecified)
       (set-face-attribute 'whitespace-indentation nil
-                          :background nil)
+                          :background 'unspecified)
       (spacemacs|diminish whitespace-mode " ⓦ" " w")
       (spacemacs|diminish global-whitespace-mode " ⓦ" " w"))))
 

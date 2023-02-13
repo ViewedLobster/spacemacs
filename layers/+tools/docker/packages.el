@@ -1,6 +1,6 @@
 ;;; packages.el --- docker Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;; Copyright (c) 2015 Alan Zimmerman & Contributors
 ;;
 ;; Author: Alan Zimmerman <alan.zimm@gmail.com>
@@ -25,7 +25,7 @@
 (defconst docker-packages
   '(
     docker
-    docker-tramp
+    (docker-tramp :toggle (version< emacs-version "29.0.50"))
     dockerfile-mode
     flycheck))
 
@@ -50,10 +50,15 @@
     :defer t
     :init (add-hook 'dockerfile-mode-local-vars-hook #'spacemacs//docker-dockerfile-setup-backend)
     :config
-    (spacemacs/declare-prefix-for-mode 'dockerfile-mode "mc" "compile")
-    (spacemacs/set-leader-keys-for-major-mode 'dockerfile-mode
-      "cb" 'dockerfile-build-buffer
-      "cB" 'dockerfile-build-no-cache-buffer)))
+    (progn
+      (spacemacs/set-leader-keys-for-major-mode 'dockerfile-mode
+        (if (null docker-dockerfile-backend) "b" "cb") 'dockerfile-build-buffer
+        (if (null docker-dockerfile-backend) "B" "cB") 'dockerfile-build-buffer-no-cache-buffer)
+      (if (package-installed-p 'docker)
+        (spacemacs/set-leader-keys-for-major-mode 'dockerfile-mode
+          "d" 'docker
+          "i" 'docker-images
+          "p" 'docker-containers)))))
 
 (defun docker/post-init-flycheck ()
   (spacemacs/enable-flycheck 'dockerfile-mode))

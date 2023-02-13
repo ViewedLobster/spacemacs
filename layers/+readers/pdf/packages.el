@@ -1,7 +1,7 @@
 ;;; packages.el --- PDF Layer packages File for Spacemacs
 ;;
 ;; Copyright (c) 2012-2021 Sylvain Benner
-;; Copyright (c) 2020-2020 Sylvain Benner & Contributors
+;; Copyright (c) 2020-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: André Peric Tavares <andre.peric.tavares@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -63,10 +63,17 @@
         "O" 'pdf-outline
         "n" 'pdf-view-midnight-minor-mode)
 
-      (evil-define-key 'visual pdf-view-mode-map "y" 'pdf-view-kill-ring-save)
+      (evil-define-key 'visual pdf-view-mode-map
+        "y" 'pdf-view-kill-ring-save
+        (kbd "<C-down-mouse-1>") 'pdf-view-mouse-extend-region
+        (kbd "<M-down-mouse-1>") 'pdf-view-mouse-set-region-rectangle
+        (kbd "<down-mouse-1>")  'pdf-view-mouse-set-region)
 
       ;; TODO: Make `/', `?' and `n' work like in Evil
-      (evilified-state-evilify pdf-view-mode pdf-view-mode-map
+      (evilified-state-evilify-map pdf-view-mode-map
+        :mode  pdf-view-mode
+        :eval-after-load pdf-view
+        :bindings
         ;; Navigation
         "0"  'image-bol
         "$"  'image-eol
@@ -96,7 +103,11 @@
         "o"   'pdf-links-action-perform
         "O"   'pdf-outline
         "zr"  'pdf-view-scale-reset)
-      (evilified-state-evilify pdf-outline-buffer-mode pdf-outline-buffer-mode-map
+
+      (evilified-state-evilify-map pdf-outline-buffer-mode-map
+        :mode  pdf-outline-buffer-mode
+        :eval-after-load pdf-outline
+        :bindings
         "-"                'negative-argument
         "j"                'next-line
         "k"                'previous-line
@@ -119,13 +130,19 @@
         "Q"                'pdf-outline-quit-and-kill
         "q"                'quit-window
         "F"                'pdf-outline-follow-mode)
-      (evilified-state-evilify pdf-annot-list-mode pdf-annot-list-mode-map
+      (evilified-state-evilify-map pdf-annot-list-mode-map
+        :mode  pdf-annot-list-mode
+        :eval-after-load pdf-annot
+        :bindings
         "f"                'pdf-annot-list-display-annotation-from-id
         "d"                'tablist-flag-forward
         "x"                'tablist-do-flagged-delete
         "u"                'tablist-unmark-forward
         "q"                'tablist-quit)
-      (evilified-state-evilify pdf-occur-buffer-mode pdf-occur-buffer-mode-map
+      (evilified-state-evilify-map pdf-occur-buffer-mode-map
+        :mode  pdf-occur-buffer-mode
+        :eval-after-load pdf-occur
+        :bindings
         "q"              'tablist-quit
         "g"              'pdf-occur-revert-buffer-with-args
         "r"              'pdf-occur-revert-buffer-with-args

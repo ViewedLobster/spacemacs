@@ -1,6 +1,6 @@
 ;;; funcs.el --- Spacemacs Bootstrap Layer functions File
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -19,7 +19,6 @@
 ;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 
 
 
@@ -68,19 +67,20 @@ For evil states that also need an entry to `spacemacs-evil-cursors' use
   ;; for example treemacs: it needs no cursor since it solely uses hl-line-mode
   ;; and having an evil cursor defined anyway leads to the cursor sometimes
   ;; visibly flashing in treemacs buffers
-  (eval `(defface ,(intern (format "spacemacs-%s-face" state))
-           `((t (:background ,color
-                             :foreground ,(face-background 'mode-line)
-                             :inherit 'mode-line)))
+  (eval `(defface ,(spacemacs/state-color-face (intern state))
+           `((t (:background ,color :inherit 'mode-line)))
            (format "%s state face." state)
-           :group 'spacemacs)))
+           :group 'spacemacs))
+  ;; 'unspecified may not be used in defface, so set it via set-face-attribute.
+  (set-face-attribute (spacemacs/state-color-face (intern state)) nil
+       :foreground (face-attribute 'mode-line :background)))
 
 (defun spacemacs/set-state-faces ()
-  (cl-loop for (state color cursor) in spacemacs-evil-cursors
-           do
-           (set-face-attribute (intern (format "spacemacs-%s-face" state))
-                               nil
-                               :foreground (face-background 'mode-line))))
+  (let ((ml-bg (face-attribute 'mode-line :background)))
+    (cl-loop for (state color cursor) in spacemacs-evil-cursors
+             do
+             (set-face-attribute (spacemacs/state-color-face (intern state)) nil
+                                 :foreground ml-bg))))
 
 (defun evil-insert-state-cursor-hide ()
   (setq evil-insert-state-cursor '((hbar . 0))))
@@ -224,96 +224,6 @@ the scroll transient state.")
    (if spacemacs--scroll-ts-full-hint-toggle
        spacemacs--scroll-ts-full-hint
      (concat "[" (propertize "?" 'face 'hydra-face-red) "] toggle help"))))
-
-
-
-(defun use-package-normalize/:spacebind (name-symbol keyword args)
-  (use-package-only-one (symbol-name keyword) args
-    (lambda (label arg)
-      (if (and (listp arg) (keywordp (car arg)))
-          arg
-        (use-package-error
-         ":spacebind wants an arg list compatible with `spacebind' macro")))))
-
-(defun use-package-handler/:spacebind (name-symbol keyword args rest state)
-  (let ((body (use-package-process-keywords name-symbol rest state)))
-    (if (null args)
-        body
-      (use-package-concat
-       body
-       `((spacemacs|spacebind ,@args))))))
-
-
-
-(defun use-package-normalize-spacediminish (name label arg &optional recursed)
-  "Normalize the arguments to `spacemacs|diminish' to a list of one of six forms:
-     t
-     SYMBOL
-     STRING
-     (SYMBOL STRING)
-     (STRING STRING)
-     (SYMBOL STRING STRING)"
-  (let ((default-mode (use-package-as-mode name)))
-    (pcase arg
-      ;; (PATTERN ..) when not recursive -> go to recursive case
-      ((and (or `(,x . ,y) `(,x ,y))
-            (guard (and (not recursed)
-                        (listp x)
-                        (listp y))))
-       (mapcar #'(lambda (var) (use-package-normalize-spacediminish name label var t))
-               arg))
-      ;; t -> (<PKG>-mode)
-      ('t
-       (list default-mode))
-      ;; SYMBOL -> (SYMBOL)
-      ((pred use-package-non-nil-symbolp)
-       (list arg))
-      ;; STRING -> (<PKG>-mode STRING)
-      ((pred stringp)
-       (list default-mode arg))
-      ;; (SYMBOL) when recursed -> (SYMBOL)
-      ((and `(,x)
-            (guard (and recursed (use-package-non-nil-symbolp x))))
-       arg)
-      ;; (STRING) when recursed -> (<PKG>-mode STRING))
-      ((and `(,x)
-            (guard (and recursed (stringp x))))
-       (cons default-mode arg))
-      ;; (SYMBOL STRING) -> (SYMBOL STRING)
-      ((and `(,x ,y)
-            (guard (and (use-package-non-nil-symbolp x) (stringp y))))
-       arg)
-      ;; (STRING STRING) -> (<PKG>-mode STRING STRING)
-      ((and `(,x ,y)
-            (guard (and (stringp x) (stringp y))))
-       (cons default-mode arg))
-      ;; (SYMBOL STRING STRING) -> (SYMBOL STRING STRING)
-      ((and `(,x ,y ,z)
-            (guard (and (use-package-non-nil-symbolp x)
-                        (stringp y)
-                        (stringp z))))
-       arg)
-      (_
-       (use-package-error
-        (format
-         "%s wants a symbol, string, (symbol string), (string string), (symbol string string) or list of these: %S"
-         label arg))))))
-
-;;;###autoload
-(defun use-package-normalize/:spacediminish (name keyword args)
-  (use-package-as-one (symbol-name keyword) args
-    (apply-partially #'use-package-normalize-spacediminish name) t))
-
-;;;###autoload
-(defun use-package-handler/:spacediminish (name _keyword arg rest state)
-  (let ((body (use-package-process-keywords name rest state)))
-    (use-package-concat
-     `((when (fboundp 'spacemacs|diminish)
-         ,@(if (consp (car arg)) ;; e.g. ((MODE FOO BAR) ...)
-               (mapcar #'(lambda (var) `(spacemacs|diminish ,@var))
-                       arg)
-             `((spacemacs|diminish ,@arg))))) ;; e.g. (MODE FOO BAR)
-     body)))
 
 
 

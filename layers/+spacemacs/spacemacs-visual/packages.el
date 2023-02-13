@@ -1,6 +1,6 @@
 ;;; packages.el --- Spacemacs UI Visual Layer packages File
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -33,6 +33,7 @@
         hl-todo
         popup
         popwin
+        posframe
         (zoom-frm :location local)))
 
 (defun spacemacs-visual/init-all-the-icons ()
@@ -92,6 +93,9 @@
     (global-hl-todo-mode 1)))
 
 (defun spacemacs-visual/init-popup ())
+
+(defun spacemacs-visual/init-posframe ()
+  (use-package posframe :defer t))
 
 (defun spacemacs-visual/init-popwin ()
   (use-package popwin

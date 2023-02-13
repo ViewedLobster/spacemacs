@@ -1,6 +1,6 @@
 ;;; layers.el --- react Layer layers File for Spacemacs
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Thanh Vuong <thanhvg@gmail.com>
 ;; URL: https://github.com/thanhvg
@@ -22,3 +22,7 @@
 
 
 (configuration-layer/declare-layers '(node html prettier javascript))
+
+(when (and (boundp 'vue-backend)
+           (eq vue-backend 'lsp))
+  (configuration-layer/declare-layer-dependencies '(lsp)))

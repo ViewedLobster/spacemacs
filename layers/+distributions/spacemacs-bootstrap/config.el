@@ -1,6 +1,6 @@
 ;;; config.el --- Spacemacs Bootstrap Layer configuration File
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -73,6 +73,10 @@ if used there.")
   (spacemacs|dotspacemacs-backward-compatibility
    dotspacemacs-visual-line-move-text nil)
   "If non-nil, J and K move lines up and down when in visual mode.")
+
+(defvar vim-style-enable-undo-region nil
+  "If non-nil, `u' is remapped to `undo' in visual state.
+Otherwise, in visual state `u' downcases visually selected text.")
 
 (defvar vim-style-ex-substitute-global
   (spacemacs|dotspacemacs-backward-compatibility

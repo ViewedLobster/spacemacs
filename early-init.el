@@ -1,6 +1,6 @@
 ;;; early-init.el --- Spacemacs Early Init File -*- no-byte-compile: t -*-
 ;;
-;; Copyright (c) 2020 Sylvain Benner & Contributors
+;; Copyright (c) 2020-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Miciah Dashiel Butler Masters <miciah.masters@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -39,8 +39,14 @@
               "core/core-early-funcs")
       nil (not init-file-debug))
 
-;; Remove GUI elements soon after GUI being initialized to avoid some possible grapical glitches.
-;; This has to be done use these hooks,
-;; see https://www.gnu.org/software/emacs/manual/html_node/emacs/Early-Init-File.html
-(add-hook 'window-setup-hook 'spacemacs/removes-gui-elements)
-(add-hook 'tty-setup-hook 'spacemacs/removes-gui-elements)
+;; Unfortunately the hooks below prevent users from customizing gui elements
+;; within dotspacemacs/user-config function. Thus the hooks are commented out.
+;; These should not be needed in any case since gui elements are turned off
+;; within spacemacs/init function.  Original comment follows next.
+;;
+;; Remove GUI elements soon after GUI being initialized to avoid some possible
+;; grapical glitches. This has to be done use these hooks, see
+;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Early-Init-File.html
+;;
+;; (add-hook 'window-setup-hook 'spacemacs/toggle-gui-elements-off)
+;; (add-hook 'tty-setup-hook 'spacemacs/toggle-gui-elements-off)

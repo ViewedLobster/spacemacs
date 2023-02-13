@@ -1,6 +1,6 @@
 ;;; funcs.el --- Spacemacs Defaults Layer functions File
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -510,7 +510,7 @@ With Helm, remember the path, then restore it after SEC.
 With Ivy, the path isn't editable, just remove the MSG after SEC."
   (run-at-time
    0 nil
-   #'(lambda (msg sec)
+   (lambda (msg sec)
        (let* ((prev-prompt-contents
                (buffer-substring (line-beginning-position)
                                  (line-end-position)))
@@ -779,7 +779,8 @@ ones created by `magit' and `dired'."
 (defun spacemacs/copy-file-name ()
   "Copy and show the file name of the current buffer."
   (interactive)
-  (if-let (file-name (file-name-nondirectory (spacemacs--file-path)))
+  (if-let* ((file-path (spacemacs--file-path))
+            (file-name (file-name-nondirectory file-path)))
       (progn
         (kill-new file-name)
         (message "%s" file-name))
@@ -861,11 +862,11 @@ then apply that major mode to the new buffer."
   (interactive)
   (let ((newbuf (generate-new-buffer "untitled")))
     (cl-case split
-      ('left  (split-window-horizontally))
-      ('below (spacemacs/split-window-vertically-and-switch))
-      ('above (split-window-vertically))
-      ('right (spacemacs/split-window-horizontally-and-switch))
-      ('frame (select-frame (make-frame))))
+      (left  (split-window-horizontally))
+      (below (spacemacs/split-window-vertically-and-switch))
+      (above (split-window-vertically))
+      (right (spacemacs/split-window-horizontally-and-switch))
+      (frame (select-frame (make-frame))))
     ;; Prompt to save on `save-some-buffers' with positive PRED
     (with-current-buffer newbuf
       (setq-local buffer-offer-save t)
@@ -993,14 +994,13 @@ as a means to remove windows, regardless of the value in
         (delete-other-windows))
     (funcall spacemacs-window-split-delete-function))
   (if (spacemacs--window-split-splittable-windows)
-      (let* ((previous-files (seq-filter #'buffer-file-name
-                                         (delq (current-buffer) (buffer-list))))
+      (let* ((previous-files (buffer-list))
              (second (split-window-below))
              (third (split-window-right))
              (fourth (split-window second nil 'right)))
-        (set-window-buffer third (or (car previous-files) "*scratch*"))
-        (set-window-buffer second (or (cadr previous-files) "*scratch*"))
-        (set-window-buffer fourth (or (caddr previous-files) "*scratch*"))
+        (set-window-buffer third (or (nth 1 previous-files) "*scratch*"))
+        (set-window-buffer second (or (nth 2 previous-files) "*scratch*"))
+        (set-window-buffer fourth (or (nth 3 previous-files) "*scratch*"))
         (balance-windows))
     (message "There are no main windows available to split!")))
 
@@ -1019,12 +1019,11 @@ as a means to remove windows, regardless of the value in
         (delete-other-windows))
     (funcall spacemacs-window-split-delete-function))
   (if (spacemacs--window-split-splittable-windows)
-      (let* ((previous-files (seq-filter #'buffer-file-name
-                                         (delq (current-buffer) (buffer-list))))
+      (let* ((previous-files (buffer-list))
              (second (split-window-right))
              (third (split-window second nil 'right)))
-        (set-window-buffer second (or (car previous-files) "*scratch*"))
-        (set-window-buffer third (or (cadr previous-files) "*scratch*"))
+        (set-window-buffer second (or (nth 1 previous-files) "*scratch*"))
+        (set-window-buffer third (or (nth 2 previous-files) "*scratch*"))
         (balance-windows))
     (message "There are no main windows available to split!")))
 
@@ -1033,6 +1032,9 @@ as a means to remove windows, regardless of the value in
 
 Uses the funcion defined in `spacemacs-window-split-delete-function'
 as a means to remove windows.
+
+Left side window is the current buffer. Right side one is the
+most recently selected buffer other than current buffer.
 
 When called with a prefix argument, it uses `delete-other-windows'
 as a means to remove windows, regardless of the value in
@@ -1043,10 +1045,8 @@ as a means to remove windows, regardless of the value in
         (delete-other-windows))
     (funcall spacemacs-window-split-delete-function))
   (if (spacemacs--window-split-splittable-windows)
-      (let* ((previous-files (seq-filter #'buffer-file-name
-                                         (delq (current-buffer) (buffer-list)))))
-        (set-window-buffer (split-window-right)
-                           (or (car previous-files) "*scratch*"))
+      (let* ((right-side-buffer (other-buffer (current-buffer) t)))
+        (set-window-buffer (split-window-right) right-side-buffer)
         (balance-windows))
     (message "There are no main windows available to split!")))
 
@@ -1264,7 +1264,7 @@ containing the current file by the default explorer."
   (when (active-minibuffer-window)
     (select-window (active-minibuffer-window))))
 
-;; http://stackoverflow.com/a/10216338/4869
+;; https://stackoverflow.com/a/10216338
 (defun spacemacs/copy-whole-buffer-to-clipboard ()
   "Copy entire buffer to clipboard"
   (interactive)
@@ -1308,7 +1308,7 @@ the right."
 
     (align-regexp start end complete-regexp group 1 t)))
 
-;; Modified answer from http://emacs.stackexchange.com/questions/47/align-vertical-columns-of-numbers-on-the-decimal-point
+;; Modified answer from https://emacs.stackexchange.com/a/48
 (defun spacemacs/align-repeat-decimal (start end)
   "Align a table of numbers on decimal points and dollar signs (both optional)"
   (interactive "r")
@@ -1758,6 +1758,15 @@ Decision is based on `dotspacemacs-line-numbers'."
   (or (eq dotspacemacs-line-numbers 'visual)
       (and (listp dotspacemacs-line-numbers)
            (car (spacemacs/mplist-get-values dotspacemacs-line-numbers :visual)))))
+
+(defun spacemacs/line-numbers-type ()
+  "Returns a valid value for `display-line-numbers', activating
+line numbers, with respect to `dotspacemacs-line-numbers'."
+  (if (listp dotspacemacs-line-numbers)
+      (cond ((car (spacemacs/mplist-get-values dotspacemacs-line-numbers :visual)) 'visual)
+            ((car (spacemacs/mplist-get-values dotspacemacs-line-numbers :relative)) 'relative)
+            (t t))
+    dotspacemacs-line-numbers))
 
 (defun spacemacs//linum-on (origfunc &rest args)
   "Advice function to improve `linum-on' function."

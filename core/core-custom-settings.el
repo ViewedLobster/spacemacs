@@ -1,6 +1,6 @@
-;;; core-custom-settings.el --- Spacemacs Core File
+;;; core-custom-settings.el --- Spacemacs Core File -*- lexical-binding: t -*-
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -84,7 +84,12 @@ end of the buffer.
           (goto-char (point-max))
           (search-backward "\n\^L" (max (- (point-max) 3000) (point-min))
                            'move)
-          (when (search-forward "Local Variables:" nil t)
+          ;; emacs would print the warning
+          ;;   "Local variables list is not properly terminated"
+          ;; (a false positive) when reading this source file
+          ;; if we had not obfuscated the string literal
+          ;; in the next line using an ignored space ("\ ").
+          (when (search-forward "Local\  Variables:" nil t)
             (setq pos (line-beginning-position))))
         (goto-char pos)))))
 

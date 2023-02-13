@@ -27,7 +27,7 @@
   - [[#project-support][Project support]]
   - [[#org-brain-support][Org-brain support]]
   - [[#org-roam-support][Org-roam support]]
-    - [[#org-roam-server-support][Org-roam-server support]]
+    - [[#org-roam-ui-support][Org-roam-ui support]]
     - [[#org-roam-protocol-support][Org-roam-protocol support]]
   - [[#mode-line-support][Mode line support]]
   - [[#sticky-header-support][Sticky header support]]
@@ -93,7 +93,7 @@ For more extensive support of references through BibTeX files, have a look at
 the [[https://github.com/syl20bnr/spacemacs/blob/develop/layers/+lang/bibtex/README.org][BibTeX layer]].
 
 * Important Note
-Since version 0.300, spacemacs uses the =org= version from the ELPA repository
+Spacemacs uses the =org= version from the ELPA repository
 instead of the one shipped with emacs. Then, any =org= related code should not
 be loaded before =dotspacemacs/user-config=, otherwise both versions will be
 loaded and will conflict.
@@ -416,10 +416,10 @@ To install Trello support set the variable =org-enable-trello-support= to =t=.
 ** Different bullets
 You can tweak the bullets displayed in the org buffer in the function
 =dotspacemacs/user-config= of your dotfile by setting the variable
-=org-superstar-headline-bullets-list=. By default the list is set to =("◉" "○" "✸" "✿")=.
+=org-superstar-headline-bullets-list=. By default the list is set to =(?◉ ?○ ?✸ ?✿)=.
 
 #+BEGIN_SRC emacs-lisp
-  (setq org-superstar-bullet-list '("■" "◆" "▲" "▶"))
+  (setq org-superstar-headline-bullets-list '(?■ ?◆ ?▲ ?▶))
 #+END_SRC
 
 You can disable the fancy bullets entirely by adding =org-superstar= to =dotspacemacs-excluded-packages=.
@@ -467,9 +467,10 @@ To install org-roam support set the variable =org-enable-roam-support= to =t=.
 
 More information about org-roam package (including manual) can be found at [[https://www.orgroam.com/][Org-roam]] website.
 
-*** Org-roam-server support
-To install support for [[https://github.com/org-roam/org-roam-server][org-roam-server]] set the variable =org-enable-roam-server=
-to =t=.
+*** Org-roam-ui support
+To install support for [[https://github.com/org-roam/org-roam-ui][org-roam-ui]] set the variable =org-enable-roam-ui= to =t=.
+
+Use ~M-x org-roam-ui-mode~ to enable the global mode. It will start a web browser and connect to it for real-time updates.
 
 *** Org-roam-protocol support
 To enable support for [[https://www.orgroam.com/manual.html#Org_002droam-Protocol][Org Roam Protocol]] set the variable
@@ -889,6 +890,8 @@ The evilified org agenda supports the following bindings:
 |----------------------+-----------------------------------|
 | ~M-SPC~ or ~s-M-SPC~ | org-agenda transient state        |
 | ~SPC m a~            | org-agenda                        |
+| ~SPC m [~            | org-agenda-file-to-front          |
+| ~SPC m ]~            | org-remove-file                   |
 | ~SPC m ,~            | org-agenda-ctrl-c-ctrl-c          |
 | ~SPC m c~            | org-agenda-capture                |
 | ~SPC m C c~          | org-agenda-clock-cancel           |
@@ -942,7 +945,6 @@ each binding are listed bellow.
 | ~fc~        | by category         | org-agenda-filter-by-category     |
 | ~fd~        | delete all filters  | org-agenda-filter-remove-all      |
 | ~fh~        | by top headline     | org-agenda-filter-by-top-headline |
-| ~fr~        | refine by tag       | org-agenda-filter-by-tag-refine   |
 | ~ft~        | by tag              | org-agenda-filter-by-tag          |
 | ~fx~        | by regexp           | org-agenda-filter-by-regexp       |
 |-------------+---------------------+-----------------------------------|

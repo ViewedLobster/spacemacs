@@ -1,6 +1,6 @@
 ;;; funcs.el --- svelte layer funcs file for Spacemacs. -*- lexical-binding: t -*-
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Marco Süß <msuess@mailbox.org>
 ;; URL: https://github.com/msuess
@@ -74,10 +74,10 @@
 
 (defun spacemacs//svelte-setup-editor-style ()
   "such as indent rules comment style etc"
-  ;; https://stackoverflow.com/questions/36701024/how-can-i-indent-inline-javascript-in-web-mode
+  ;; https://stackoverflow.com/a/36725155
   (setq web-mode-script-padding 0)
   (setq web-mode-style-padding 0)
-  ;; https://emacs.stackexchange.com/questions/27683/change-comment-style-in-web-mode
+  ;; https://emacs.stackexchange.com/a/27714
   (add-to-list 'web-mode-comment-formats '("javascript" . "//")))
 
 (defun spacemacs//svelte-setup-keybindings ()

@@ -286,13 +286,27 @@ if no action is necessary (like when the package is installed
 already and should not be upgraded etc)."
   (let* ((name (car rcp))
          (build-dir (expand-file-name (symbol-name name) quelpa-build-dir))
-         (version (quelpa-checkout rcp build-dir)))
+         (ver-type (plist-get (cdr rcp) :version-type))
+         (files (quelpa-build--config-file-list (cdr rcp)))
+         (melpa-ver (quelpa-checkout rcp build-dir))
+         (version
+          (cond
+           ((or (not (equal ver-type 'elpa)) quelpa-stable-p) melpa-ver)
+           (melpa-ver
+            (let ((base-ver
+                   (if-let ((info (quelpa-build--pkg-info (symbol-name name)
+                                                          files build-dir)))
+                       (aref info 3)
+                     '(0 0 0))))
+              (while (< (length base-ver) 3) (setq base-ver (append base-ver '(0))))
+              (package-version-join
+               (nconc base-ver (version-to-list melpa-ver))))))))
     (prog1
         (if version
             (quelpa-archive-file-name
              (quelpa-build-package (symbol-name name)
                                    version
-                                   (quelpa-build--config-file-list (cdr rcp))
+                                   files
                                    build-dir
                                    quelpa-packages-dir))
           (quelpa-build--message "Newer package has been installed. Not upgrading.")
@@ -312,9 +326,9 @@ already and should not be upgraded etc)."
                   (or (funcall package-strip-rcs-id-orig (lm-header "package-version"))
                       (funcall package-strip-rcs-id-orig (lm-header "version"))
                       "0"))))
-      (concat (mapconcat
-               #'number-to-string
-               (package-desc-version (quelpa-get-package-desc file-path)) ".")
+      (concat (if-let ((desc (quelpa-get-package-desc file-path)))
+                  (mapconcat #'number-to-string (package-desc-version desc) ".")
+                "0")
               (pcase version
                 (`original "")
                 (_ (concat "pre0." time-stamp)))))))
@@ -411,9 +425,8 @@ and return TIME-STAMP, otherwise return OLD-TIME-STAMP."
   "When non-nil, then print additional progress information."
   :type 'boolean)
 
-(defcustom quelpa-build-stable nil
-  "When non-nil, then try to build packages from versions-tagged code."
-  :type 'boolean)
+(defvar quelpa-build-stable nil
+  "When non-nil, then try to build packages from versions-tagged code.")
 
 (defcustom quelpa-build-timeout-executable
   (let ((prog (or (executable-find "timeout")
@@ -463,10 +476,14 @@ The string in the capture group should be parsed as valid by `version-to-list'."
 ;;; Internal Variables
 
 (defconst quelpa-build-default-files-spec
-  '("*.el" "*.el.in" "dir"
-    "*.info" "*.texi" "*.texinfo"
+  '("*.el" "lisp/*.el"
+    "dir" "*.info" "*.texi" "*.texinfo"
     "doc/dir" "doc/*.info" "doc/*.texi" "doc/*.texinfo"
-    (:exclude ".dir-locals.el" "test.el" "tests.el" "*-test.el" "*-tests.el"))
+    "docs/dir" "docs/*.info" "docs/*.texi" "docs/*.texinfo"
+    (:exclude
+     ".dir-locals.el" "lisp/.dir-locals.el"
+     "test.el" "tests.el" "*-test.el" "*-tests.el"
+     "lisp/test.el" "lisp/tests.el" "lisp/*-test.el" "lisp/*-tests.el"))
   "Default value for :files attribute in recipes.")
 
 ;;; Utilities
@@ -505,7 +522,7 @@ or nil if the version cannot be parsed."
   (ignore-errors (version-to-list str)))
 
 (defun quelpa-build--parse-time (str)
-  "Parse STR as a time, and format as a YYYYMMDD.HHMM string."
+  "Parse STR as a time, and format as a YYYYMMDD.HHMMSS string."
   ;; We remove zero-padding the HH portion, as it is lost
   ;; when stored in the archive-contents
   (setq str (substring-no-properties str))
@@ -516,8 +533,9 @@ or nil if the version cannot be parsed."
                    (concat (match-string 1 str) "-" (match-string 2 str) "-"
                            (match-string 3 str) " " (match-string 4 str))
                  str))))
-    (concat (format-time-string "%Y%m%d." time)
-            (format "%d" (string-to-number (format-time-string "%H%M" time))))))
+    (replace-regexp-in-string
+     "\\.0+" "."
+     (format-time-string "%Y%m%d.%H%M%S" time))))
 
 (defun quelpa-build--find-parse-time (regexp &optional bound)
   "Find REGEXP in current buffer and format as a time-based version string.
@@ -1202,7 +1220,7 @@ Tests and sets variable `quelpa--tar-type' if not already set."
          "--exclude=_FOSSIL_"
          "--exclude=.bzr"
          "--exclude=.hg"
-         (append (and quelpa-build-explicit-tar-format-p '("--format=gnu"))
+         (append (and quelpa-build-explicit-tar-format-p (eq (quelpa--tar-type) 'gnu) '("--format=gnu"))
                  (or (mapcar (lambda (fn) (concat dir "/" fn)) files) (list dir)))))
 
 (defun quelpa-build--find-package-commentary (file-path)
@@ -1268,18 +1286,21 @@ Tests and sets variable `quelpa--tar-type' if not already set."
         (insert trailer)
         (newline)))))
 
-(defun quelpa-build--get-package-info (file-path)
-  "Get a vector of package info from the docstrings in FILE-PATH."
+(defun quelpa-build--get-package-info (file-path &optional keep-version)
+  "Get a vector of package info from the docstrings in FILE-PATH.
+If KEEP-VERSION is set, don't override with version 0."
   (when (file-exists-p file-path)
     (ignore-errors
       (with-temp-buffer
         (insert-file-contents file-path)
         ;; next few lines are a hack for some packages that aren't
         ;; commented properly.
-        (quelpa-build--update-or-insert-version "0")
         (quelpa-build--ensure-ends-here-line file-path)
-        (cl-flet ((package-strip-rcs-id (str) "0"))
-          (quelpa-build--package-buffer-info-vec))))))
+        (if keep-version
+            (quelpa-build--package-buffer-info-vec)
+          (quelpa-build--update-or-insert-version "0")
+          (cl-flet ((package-strip-rcs-id (str) "0"))
+            (quelpa-build--package-buffer-info-vec)))))))
 
 (defun quelpa-build--get-pkg-file-info (file-path)
   "Get a vector of package info from \"-pkg.el\" file FILE-PATH."
@@ -1288,6 +1309,7 @@ Tests and sets variable `quelpa--tar-type' if not already set."
       (if (eq 'define-package (car package-def))
           (let* ((pkgfile-info (cdr package-def))
                  (descr (nth 2 pkgfile-info))
+                 (ver (nth 1 pkgfile-info))
                  (rest-plist (cl-subseq pkgfile-info (min 4 (length pkgfile-info))))
                  (extras (let (alist)
                            (while rest-plist
@@ -1311,7 +1333,7 @@ Tests and sets variable `quelpa--tar-type' if not already set."
                 (list (car elt) (version-to-list (cadr elt))))
               (eval (nth 3 pkgfile-info)))
              descr
-             (nth 1 pkgfile-info)
+             (if (stringp ver) (version-to-list ver) ver)
              extras))
         (error "No define-package found in %s" file-path)))))
 
@@ -1476,30 +1498,18 @@ FILES is a list of (SOURCE . DEST) relative filepath pairs."
   (car (rassoc target files)))
 
 (defun quelpa-build--package-buffer-info-vec ()
-  "Return a vector of package info.
-`package-buffer-info' returns a vector in older Emacs versions,
-and a cl struct in Emacs HEAD.  This wrapper normalises the results."
-  (let ((desc (package-buffer-info))
-        (keywords (lm-keywords-list)))
-    (if (fboundp 'package-desc-create)
-        (let ((extras (package-desc-extras desc)))
-          (when (and keywords (not (assq :keywords extras)))
-            ;; Add keywords to package properties, if not already present
-            (push (cons :keywords keywords) extras))
-          (vector (package-desc-name desc)
-                  (package-desc-reqs desc)
-                  (package-desc-summary desc)
-                  (package-desc-version desc)
-                  extras))
-      (let ((homepage (lm-homepage))
-            extras)
-        (when keywords (push (cons :keywords keywords) extras))
-        (when homepage (push (cons :url homepage) extras))
-        (vector  (aref desc 0)
-                 (aref desc 1)
-                 (aref desc 2)
-                 (aref desc 3)
-                 extras)))))
+  "Return a vector of package info."
+  (let* ((desc (package-buffer-info))
+         (keywords (lm-keywords-list))
+         (extras (package-desc-extras desc)))
+    (when (and keywords (not (assq :keywords extras)))
+      ;; Add keywords to package properties, if not already present
+      (push (cons :keywords keywords) extras))
+    (vector (package-desc-name desc)
+            (package-desc-reqs desc)
+            (package-desc-summary desc)
+            (package-desc-version desc)
+            extras)))
 
 ;;; Building
 
@@ -1538,6 +1548,26 @@ Returns the archive entry for the package."
       (quelpa-build--build-multi-file-package
        package-name version files source-dir target-dir))
      (t (error "Unable to find files matching recipe patterns")))))
+
+(defun quelpa-build--pkg-info (package-name files source-dir)
+  (pcase files
+    (`(,file)
+     (thread-first (expand-file-name file source-dir)
+                   (quelpa-build--get-package-info :keep-version)))
+    (_
+     (let* ((default-directory source-dir)
+            (pkg-file (concat package-name "-pkg.el"))
+            (pkg-file-source (or (quelpa-build--find-source-file pkg-file files)
+                                 pkg-file))
+            (file-source (concat package-name ".el"))
+            (pkg-source (or (quelpa-build--find-source-file file-source files)
+                            file-source)))
+       (or (quelpa-build--get-pkg-file-info pkg-file-source)
+           ;; some packages (like magit) provide name-pkg.el.in
+           (quelpa-build--get-pkg-file-info
+            (expand-file-name (concat pkg-file ".in")
+                              (file-name-directory pkg-source)))
+           (quelpa-build--get-package-info pkg-source :keep-version))))))
 
 (defun quelpa-build--build-single-file-package
     (package-name version file source-dir target-dir)

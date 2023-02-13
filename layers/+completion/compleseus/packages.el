@@ -1,6 +1,6 @@
 ;;; packages.el --- compleseus layer packages file for Spacemacs.
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Thanh Vuong <thanhvg@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -24,7 +24,9 @@
   '(auto-highlight-symbol
     imenu
     marginalia
-    (compleseus-spacemacs-help :location local)
+    ;; (compleseus-spacemacs-help :location local)
+    (compleseus-spacemacs-help
+     :location (recipe :fetcher local))
     consult
     consult-yasnippet
     embark
@@ -69,7 +71,7 @@
         ("/" spacemacs/compleseus-search-projectile-auto :exit t)))))
 
 (defun compleseus/post-init-imenu ()
-  (spacemacs/set-leader-keys "ji" 'consult-imenu))
+  (spacemacs/set-leader-keys "ji" 'spacemacs/consult-jump-in-buffer))
 
 (defun compleseus/init-marginalia ()
   (use-package marginalia
@@ -78,9 +80,20 @@
            :map minibuffer-local-map
            ("M-A" . marginalia-cycle))
 
+    :config
+    (dolist (it
+             '((spacemacs/compleseus-pers-switch-project . project-file)
+               ;; https://github.com/bbatsov/projectile/issues/1664
+               ;; https://github.com/minad/marginalia/issues/110
+               (projectile-find-file . project-file)
+               (projectile-find-dir . project-file)
+               (projectile-recentf . project-file)
+               (projectile-switch-to-buffer . buffer)
+               (projectile-switch-project . file)))
+      (push it marginalia-command-categories))
+    (setq marginalia-align 'right)
     ;; The :init configuration is always executed (Not lazy!)
     :init
-
     ;; Must be in the :init section of use-package such that the mode gets
     ;; enabled right away. Note that this forces loading the package.
     (marginalia-mode)))
@@ -159,7 +172,7 @@
       "ss" #'consult-line
       "sS" #'spacemacs/consult-line
       "sk" #'consult-keep-lines
-      "rL" #'consult-complex-command
+      "rc" #'consult-complex-command
       "su" #'consult-focus-lines
       "sf" #'spacemacs/compleseus-search-auto
       "sd" #'spacemacs/compleseus-search-dir
@@ -177,10 +190,12 @@
     ;; This adds thin lines, sorting and hides the mode line of the window.
     (advice-add #'register-preview :override #'consult-register-window)
 
-    ;; Replace `completing-read-multiple' with an enhanced version.
-    (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
-
     ;; Use Consult to select xref locations with preview
+    (setq xref-prompt-for-identifier '(not xref-find-definitions
+                                           xref-find-definitions-other-window
+                                           xref-find-definitions-other-frame
+                                           xref-find-references
+                                           spacemacs/jump-to-definition))
     (setq xref-show-xrefs-function #'consult-xref)
 
     ;; Configure other variables and modes in the :config section,
@@ -200,13 +215,18 @@
      consult-ripgrep consult-git-grep consult-grep
      consult-bookmark consult-recent-file consult-xref
      consult--source-recent-file consult--source-project-recent-file consult--source-bookmark
+     consult-yank-pop
      spacemacs/compleseus-search-auto
      spacemacs/compleseus-search-dir
      spacemacs/compleseus-search-projectile
      spacemacs/compleseus-search-default
      spacemacs/compleseus-search-projectile-auto
      :preview-key (list (kbd "C-SPC") (kbd "C-M-j") (kbd "C-M-k")))
-    ;; :preview-key (kbd "C-SPC"))
+
+    ;; hide magit buffer
+    (add-to-list 'consult-buffer-filter "magit.*:.*")
+
+    (setq consult-line-start-from-top nil)
 
     ;; Optionally configure the narrowing key.
     ;; Both < and C-+ work reasonably well.
@@ -216,12 +236,29 @@
     ;; You may want to use `embark-prefix-help-command' or which-key instead.
     ;; (define-key consult-narrow-map (vconcat consult-narrow-key "?") #'consult-narrow-help)
 
+    ;; Make M-n as smart as ivy and helm equivalents
+    (setq minibuffer-default-add-function 'spacemacs/minibuffer-default-add-function)
+
     ;; Optionally configure a function which returns the project root directory.
     (setq consult-project-root-function
           (lambda ()
             (when-let (project (project-current))
-              (car (project-roots project)))))))
+              (car (project-root project))))))
 
+  ;; Configure consult-imenu for java-mode.
+  (use-package consult-imenu
+    :after consult
+    :config
+    (add-to-list 'consult-imenu-config '(java-mode :toplevel "Classes" :types
+                                                   ((?m "Methods" font-lock-function-name-face)
+                                                    (?f "Fields" font-lock-variable-name-face)
+                                                    (?c "Classes" font-lock-type-face)
+                                                    (?p "Packages" font-lock-constant-face)
+                                                    (?C "Constants" font-lock-constant-face)
+                                                    (?M "Constructors" font-lock-function-name-face)
+                                                    (?e "Enums" font-lock-type-face)
+                                                    (?E "Enum Members" font-lock-constant-face)
+                                                    (?i "Interfaces" font-lock-type-face))))))
 
 (defun compleseus/init-consult-yasnippet ()
   (use-package consult-yasnippet
@@ -267,32 +304,43 @@
 
 (defun compleseus/init-orderless ()
   (use-package orderless
-  :init
-  ;; https://github.com/oantolin/orderless/issues/48#issuecomment-856750410
-  (define-advice company-capf
-      (:around (orig-fun &rest args) set-completion-styles)
-    (let ((completion-styles '(basic partial-completion orderless)))
-      (apply orig-fun args)))
+    :init
+    ;; company-capf is messed up with orderless
+    ;; https://github.com/oantolin/orderless/issues/48#issuecomment-856750410
+    (define-advice company-capf (:around (orig-fun &rest args) set-completion-styles)
+      ;; when lsp is on stay away
+      (if (bound-and-true-p lsp-completion-mode)
+          (apply orig-fun args)
+        (let ((completion-styles '(basic partial-completion orderless)))
+          (apply orig-fun args))))
 
-  (setq completion-styles '(orderless)
-        completion-category-defaults nil
-        completion-category-overrides '((file (styles . (partial-completion)))))))
+    (setq orderless-component-separator "[ &]")
+
+    ;; should be all in with orderless other wise the results are inconsistent.
+    ;; (setq completion-styles '(basic partial-completion orderless)
+    (setq completion-styles '(orderless)
+          completion-category-defaults nil
+          completion-category-overrides '((file (styles basic partial-completion))))))
 
 (defun compleseus/init-selectrum ()
   (use-package selectrum
     :init
+    ;; Disable ido. We want to use the regular find-file etc.; enhanced by selectrum
+    (setq ido-mode nil)
+
     (selectrum-mode)
     (spacemacs/set-leader-keys
       "rl" 'selectrum-repeat
       "sl" 'selectrum-repeat)
+
     :config
-    ;; TODO can we just use `minibuffer-mode-map'?
-    (define-key selectrum-minibuffer-map (kbd "C-j") 'selectrum-next-candidate)
-    (define-key selectrum-minibuffer-map (kbd "C-r") 'consult-history)
-    (define-key selectrum-minibuffer-map (kbd "C-k") 'selectrum-previous-candidate)
-    (define-key selectrum-minibuffer-map (kbd "C-M-k") #'spacemacs/selectrum-previous-candidate-preview)
-    (define-key selectrum-minibuffer-map (kbd "C-M-j") #'spacemacs/selectrum-next-candidate-preview)
-    (define-key selectrum-minibuffer-map (kbd "C-SPC") #'spacemacs/embark-preview)))
+    (when (spacemacs//support-hjkl-navigation-p)
+      (define-key selectrum-minibuffer-map (kbd "C-j") 'selectrum-next-candidate)
+      (define-key selectrum-minibuffer-map (kbd "C-r") 'consult-history)
+      (define-key selectrum-minibuffer-map (kbd "C-k") 'selectrum-previous-candidate)
+      (define-key selectrum-minibuffer-map (kbd "C-M-k") #'spacemacs/selectrum-previous-candidate-preview)
+      (define-key selectrum-minibuffer-map (kbd "C-M-j") #'spacemacs/selectrum-next-candidate-preview)
+      (define-key selectrum-minibuffer-map (kbd "C-SPC") #'spacemacs/embark-preview))))
 
 (defun compleseus/init-vertico ()
   (use-package vertico
@@ -319,19 +367,26 @@
     ;; https://github.com/minad/vertico/issues/24
     (setq completion-in-region-function #'consult-completion-in-region)
 
-    ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
-    ;; (setq vertico-cycle t)
+    (setq vertico-resize nil
+          vertico-count 20
+          vertico-cycle nil)
+
+    ;; Disable ido. We want to use the regular find-file etc.; enhanced by vertico
+    (setq ido-mode nil)
+
     (vertico-mode)
+
     :config
-    (define-key vertico-map (kbd "M-RET") #'vertico-exit-input)
-    (define-key vertico-map (kbd "C-SPC") #'spacemacs/embark-preview)
-    (define-key vertico-map (kbd "C-j") #'vertico-next)
-    (define-key vertico-map (kbd "C-M-j") #'spacemacs/next-candidate-preview)
-    (define-key vertico-map (kbd "C-S-j") #'vertico-next-group)
-    (define-key vertico-map (kbd "C-k") #'vertico-previous)
-    (define-key vertico-map (kbd "C-M-k") #'spacemacs/previous-candidate-preview)
-    (define-key vertico-map (kbd "C-S-k") #'vertico-previous-group)
-    (define-key vertico-map (kbd "C-r") #'consult-history)))
+    (when (spacemacs//support-hjkl-navigation-p)
+      (define-key vertico-map (kbd "M-RET") #'vertico-exit-input)
+      (define-key vertico-map (kbd "C-SPC") #'spacemacs/embark-preview)
+      (define-key vertico-map (kbd "C-j") #'vertico-next)
+      (define-key vertico-map (kbd "C-M-j") #'spacemacs/next-candidate-preview)
+      (define-key vertico-map (kbd "C-S-j") #'vertico-next-group)
+      (define-key vertico-map (kbd "C-k") #'vertico-previous)
+      (define-key vertico-map (kbd "C-M-k") #'spacemacs/previous-candidate-preview)
+      (define-key vertico-map (kbd "C-S-k") #'vertico-previous-group)
+      (define-key vertico-map (kbd "C-r") #'consult-history))))
 
 (defun compleseus/init-vertico-quick ()
   (use-package vertico-quick
@@ -346,14 +401,15 @@
     :init
     (add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
     (spacemacs/set-leader-keys
-      "rl" 'vertico-repeat
-      "sl" 'vertico-repeat)))
+      "rl" 'vertico-repeat-last
+      "rL" 'vertico-repeat-select
+      "sl" 'vertico-repeat-last
+      "sL" 'vertico-repeat-select)))
 
 (defun compleseus/init-vertico-directory ()
   (use-package vertico-directory
     ;; More convenient directory navigation commands
-    :bind (:map vertico-map
-                ("C-h" . vertico-directory-delete-char))
+    :init (bind-key "C-h" 'vertico-directory-delete-char vertico-map (spacemacs//support-hjkl-navigation-p))
     ;; Tidy shadowed file names
     :hook (rfn-eshadow-update-overlay . vertico-directory-tidy)))
 
@@ -375,6 +431,7 @@
 
 (defun compleseus/init-compleseus-spacemacs-help ()
   (use-package compleseus-spacemacs-help
+    :defer t
     :init
     (spacemacs/set-leader-keys
       "h ."   'compleseus-spacemacs-help-dotspacemacs

@@ -1,6 +1,6 @@
 ;;; funcs.el --- Shell Layer functions File
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -75,8 +75,9 @@ Additionally changes to working directory when the value of
 `shell-pop-autocd-to-working-dir' is non-nil (default)."
   (interactive)
   (let ((shell (cl-case shell-default-shell
-                 ('multi-term 'multiterm)
-                 ('shell 'inferior-shell)
+                 (multi-vterm 'multivterm)
+                 (multi-term 'multiterm)
+                 (shell 'inferior-shell)
                  (t shell-default-shell))))
     (call-interactively (intern (format "spacemacs/shell-pop-%S" shell)))))
 
@@ -241,13 +242,18 @@ is achieved by adding the relevant text properties."
   (interactive)
   (multi-term))
 
+(defun multivterm (&optional ARG)
+  "Wrapper to be able to call multi-vterm from shell-pop"
+  (interactive)
+  (multi-vterm))
+
 (defun inferior-shell (&optional ARG)
   "Wrapper to open shell in current window"
   (interactive)
   (switch-to-buffer "*shell*")
   (shell "*shell*"))
 
-;; https://stackoverflow.com/questions/6837511/automatically-disable-a-global-minor-mode-for-a-specific-major-mode
+;; https://stackoverflow.com/a/6839968
 (defun spacemacs//inhibit-global-centered-cursor-mode ()
   "Counter-act `global-centered-cursor-mode'."
   (add-hook 'after-change-major-mode-hook

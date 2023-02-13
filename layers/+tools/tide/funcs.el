@@ -1,6 +1,6 @@
 ;;; funcs.el --- Tide  Layer functions File for Spacemacs
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Thanh Vuong <thanhvg@gmail.com>
 ;; URL: https://github.com/thanhvg
@@ -40,6 +40,7 @@
     "ri" #'tide-organize-imports
     "rr" #'tide-rename-symbol
     "rf" #'tide-rename-file
+    "rR" #'tide-refactor
     "S" "server"
     "Sr" #'tide-restart-server
     "Sj" #'spacemacs//tide-create-jsconfig-file))
@@ -47,7 +48,9 @@
 (defun spacemacs//tide-setup ()
   "Setup tide backend.
 Must be called by a layer using tide."
-  (evilified-state-evilify tide-references-mode tide-references-mode-map
+  (evilified-state-evilify-map tide-references-mode-map
+    :mode tide-references-mode
+    :bindings
     (kbd "C-k") 'tide-find-previous-reference
     (kbd "C-j") 'tide-find-next-reference
     (kbd "C-l") 'tide-goto-reference)

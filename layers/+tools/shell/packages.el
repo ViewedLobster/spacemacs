@@ -1,6 +1,6 @@
 ;;; packages.el --- shell packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2021 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -43,7 +43,8 @@
     terminal-here
     vi-tilde-fringe
     window-purpose
-    (vterm :toggle (not (spacemacs/system-is-mswindows)))))
+    (multi-vterm :toggle (and module-file-suffix (not (spacemacs/system-is-mswindows))))
+    (vterm :toggle (and module-file-suffix (not (spacemacs/system-is-mswindows))))))
 
 
 (defun shell/init-comint ()
@@ -367,6 +368,25 @@
       (add-hook 'vterm-mode-hook 'spacemacs/disable-hl-line-mode)
       (with-eval-after-load 'centered-cursor-mode
         (add-hook 'vterm-mode-hook 'spacemacs//inhibit-global-centered-cursor-mode)))))
+
+(defun shell/init-multi-vterm ()
+  (use-package multi-vterm
+    :defer t
+    :init
+    (progn
+      (make-shell-pop-command "multivterm" multivterm)
+      (spacemacs/set-leader-keys "atsM" 'spacemacs/shell-pop-multivterm)
+      (spacemacs/register-repl 'multi-vterm 'multi-vterm))
+    :config
+    (progn
+      (setq vterm-shell shell-default-term-shell)
+      ;; multi-term commands to create terminals and move through them.
+      (spacemacs/set-leader-keys-for-major-mode 'vterm-mode
+        "c" 'multi-vterm
+        "n" 'multi-vterm-next
+        "N" 'multi-vterm-prev
+        "p" 'multi-vterm-prev
+        "r" 'multi-vterm-rename-buffer))))
 
 (defun shell/post-init-window-purpose ()
   (purpose-set-extension-configuration
