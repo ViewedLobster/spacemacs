@@ -65,6 +65,7 @@ This function should only modify configuration layer settings."
      ott
      rust
      idris
+     typescript
      ;; ------------------- user defined utilities ---------------
      notes
      ;;whitespace-hell
@@ -264,10 +265,10 @@ It should only modify the values of Spacemacs settings."
    ;; Default font or prioritized list of fonts. The `:size' can be specified as
    ;; a non-negative integer (pixel size), or a floating-point (point size).
    ;; Point size is recommended, because it's device independent. (default 10.0)
-   dotspacemacs-default-font '("Source Code Pro"
-                               :size 14.0
-                               :weight demibold
-                               :width normal)
+   dotspacemacs-default-font '("JuliaMono"
+                               :size 13.0
+                               :weight light)
+                               ; :width normal)
 
    ;; The leader key (default "SPC")
    dotspacemacs-leader-key "SPC"
