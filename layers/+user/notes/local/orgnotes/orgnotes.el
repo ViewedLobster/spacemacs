@@ -54,7 +54,7 @@
       (let ((day (substring (orgnotes-date-command
                              "\"+%u\"")
                              0 -1)))
-        (if (eq day "1")
+        (if (string-equal day "1")
             (substring (orgnotes-date-command
                         "\"+%Y-%m-%d\"")
                         0 -1)
