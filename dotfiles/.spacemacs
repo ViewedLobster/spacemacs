@@ -616,7 +616,15 @@ before packages are loaded."
 
   (setq evil-digraphs-table-user '(((?| ?-) . ?\x22a2)
                                    ((?- ?|) . ?\x22a3)
-                                   ((?T ?-) . ?\x22a4)))
+                                   ((?T ?-) . ?\x22a4)
+                                   ((?[ ?C) . ?\x228f) ; square strict incl
+                                   ((?] ?C) . ?\x2290)
+                                   ((?[ ?_) . ?\x2291) ; square incl
+                                   ((?] ?_) . ?\x2292)
+                                   ((?[ ?U) . ?\x2293) ; square cap
+                                   ((?] ?U) . ?\x2294) ; square cup
+                                   )
+        )
 
   (setq-default c-default-style "bsd"
                 c-basic-offset 8)
