@@ -623,10 +623,11 @@ before packages are loaded."
                                    ((?] ?_) . ?\x2292)
                                    ((?[ ?U) . ?\x2293) ; square cap
                                    ((?] ?U) . ?\x2294) ; square cup
-                                   ((?N ?N) . ?\x2115) ; nat
                                    ((?C ?C) . ?\x2102) ; complex
+                                   ((?N ?N) . ?\x2115) ; nat
                                    ((?R ?R) . ?\x211d) ; reals
                                    ((?Q ?Q) . ?\x211a) ; rationals
+                                   ((?Z ?Z) . ?\x2124) ; integers
                                    )
         )
 
