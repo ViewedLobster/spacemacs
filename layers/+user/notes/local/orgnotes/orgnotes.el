@@ -43,7 +43,7 @@
                                             "\"+%Y-%m-%d--%H:%M:%S\"")
                                            0 -1)))
                  (find-file (format "%s/%s%s.org" dir timestamp extra))))))))
-)
+  )
 
 (defun orgnotes-start-of-week ()
   (let ((os (substring (shell-command-to-string "uname") 0 -1)))
