@@ -14,6 +14,15 @@
 (defun spacemacs-ott/ott-preview ()
   "Preview ott pdf"
   (interactive)
+  (let ((out (spacemacs-ott/ott-pdf)))
+    (when (spacemacs-ott/ott-pdf)
+      (spacemacs-ott/ott-open-pdf out))
+    )
+  )
+
+(defun spacemacs-ott/ott-pdf ()
+  "create ott preview pdf document"
+  (interactive)
   (let* ((current (buffer-file-name))
          (sans (file-name-sans-extension current))
          (in  current)
@@ -26,14 +35,13 @@
                            (shell-quote-argument in)
                            (shell-quote-argument tex))))
       (when (eq 0 (shell-command (format
-                                  "pdflatex %s"
-                                  (shell-quote-argument tex))))
-        (spacemacs-ott/ott-open-pdf out)))
-    )
-  )
+                            "pdflatex %s"
+                            (shell-quote-argument tex))))
+        out))))
 
+;; TODO make this a setting, so that we don't hardcode pdf viewer
 (defun spacemacs-ott/ott-open-pdf (file)
-  (shell-command (format "open %s &" (shell-quote-argument file)))
+  (shell-command (format "zathura %s &" (shell-quote-argument file)))
   )
 
 (defun ott/init-ott-mode ()
@@ -42,6 +50,7 @@
     (progn
       (spacemacs/set-leader-keys-for-major-mode 'ott-mode
         "c" 'spacemacs-ott/ott-check
+        "C" 'spacemacs-ott/ott-pdf
         "p" 'spacemacs-ott/ott-preview))
     )
   )
