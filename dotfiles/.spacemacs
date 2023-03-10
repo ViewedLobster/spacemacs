@@ -6,7 +6,7 @@
   "Layer configuration:
 This function should only modify configuration layer settings."
   (setq-default
-   ;; Base distribution to use. This is a layer contained in the directory
+   ;; Base distribut ion to use. This is a layer contained in the directory
    ;; `+distribution'. For now available distributions are `spacemacs-base'
    ;; or `spacemacs'. (default 'spacemacs)
    dotspacemacs-distribution 'spacemacs-base
@@ -59,6 +59,8 @@ This function should only modify configuration layer settings."
      ;; syntax-checking
      ;; version-control
      treemacs
+     ;; ------------------- evil-extras --------------------------
+     evil-snipe
      ;; ------------------- language support ---------------------
      emacs-lisp
      haskell
@@ -645,12 +647,12 @@ before packages are loaded."
   (setq evil-digraphs-table-user '(((?| ?-) . ?\x22a2)
                                    ((?- ?|) . ?\x22a3)
                                    ((?T ?-) . ?\x22a4)
-                                   ((?[ ?C) . ?\x228f) ; square strict incl
-                                   ((?] ?C) . ?\x2290)
-                                   ((?[ ?_) . ?\x2291) ; square incl
-                                   ((?] ?_) . ?\x2292)
-                                   ((?[ ?U) . ?\x2293) ; square cap
-                                   ((?] ?U) . ?\x2294) ; square cup
+                                   ((?\[ ?C) . ?\x228f) ; square strict incl
+                                   ((?\] ?C) . ?\x2290)
+                                   ((?\[ ?_) . ?\x2291) ; square incl
+                                   ((?\] ?_) . ?\x2292)
+                                   ((?\[ ?U) . ?\x2293) ; square cap
+                                   ((?\] ?U) . ?\x2294) ; square cup
                                    ((?C ?C) . ?\x2102) ; complex
                                    ((?N ?N) . ?\x2115) ; nat
                                    ((?R ?R) . ?\x211d) ; reals
@@ -684,7 +686,7 @@ This function is called at the very end of Spacemacs initialization."
  '(org-modules
    '(ol-bbdb ol-bibtex ol-docview ol-doi ol-eww ol-gnus org-habit ol-info ol-irc ol-mhe ol-rmail org-tempo ol-w3m))
  '(package-selected-packages
-   '(tern idris-mode prop-menu toml-mode ron-mode racer pos-tip rust-mode cargo toc-org org-superstar org-rich-yank org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download org-contrib org-cliplink htmlize helm-org-rifle gnuplot evil-org flx-ido lsp-haskell lsp-mode markdown-mode spinner hlint-refactor hindent helm-hoogle haskell-snippets yasnippet haskell-mode cmm-mode vi-tilde-fringe evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-collection annalist evil-cleverparens smartparens evil-args evil-anzu anzu zonokai-emacs zenburn-theme zen-and-art-theme white-sand-theme which-key use-package underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme treemacs-projectile treemacs-icons-dired treemacs-evil toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme sunny-day-theme sublime-themes subatomic256-theme subatomic-theme spacegray-theme soothe-theme solarized-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme seti-theme reverse-theme rebecca-theme railscasts-theme quickrun purple-haze-theme professional-theme planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme pcre2el overseer organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme naquadah-theme nameless mustang-theme monokai-theme monochrome-theme molokai-theme moe-theme modus-themes minimal-theme material-theme majapahit-theme madhat2r-theme macrostep lush-theme light-soap-theme kaolin-themes jbeans-theme jazz-theme ir-black-theme inspector inkpot-theme hybrid-mode heroku-theme hemisu-theme helm-xref helm-themes helm-swoop helm-projectile helm-org helm-mode-manager helm-make helm-flx helm-descbinds helm-ag hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gandalf-theme flycheck-package flycheck-elsa flatui-theme flatland-theme farmhouse-theme eziam-theme exotica-theme evil-mc espresso-theme emr elisp-slime-nav elisp-def dracula-theme dotenv-mode doom-themes django-theme diminish darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme cyberpunk-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme chocolate-theme cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme bind-map badwolf-theme auto-compile apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes afternoon-theme ace-jump-helm-line)))
+   '(evil-snipe tern idris-mode prop-menu toml-mode ron-mode racer pos-tip rust-mode cargo toc-org org-superstar org-rich-yank org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download org-contrib org-cliplink htmlize helm-org-rifle gnuplot evil-org flx-ido lsp-haskell lsp-mode markdown-mode spinner hlint-refactor hindent helm-hoogle haskell-snippets yasnippet haskell-mode cmm-mode vi-tilde-fringe evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-collection annalist evil-cleverparens smartparens evil-args evil-anzu anzu zonokai-emacs zenburn-theme zen-and-art-theme white-sand-theme which-key use-package underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme treemacs-projectile treemacs-icons-dired treemacs-evil toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme sunny-day-theme sublime-themes subatomic256-theme subatomic-theme spacegray-theme soothe-theme solarized-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme seti-theme reverse-theme rebecca-theme railscasts-theme quickrun purple-haze-theme professional-theme planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme pcre2el overseer organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme naquadah-theme nameless mustang-theme monokai-theme monochrome-theme molokai-theme moe-theme modus-themes minimal-theme material-theme majapahit-theme madhat2r-theme macrostep lush-theme light-soap-theme kaolin-themes jbeans-theme jazz-theme ir-black-theme inspector inkpot-theme hybrid-mode heroku-theme hemisu-theme helm-xref helm-themes helm-swoop helm-projectile helm-org helm-mode-manager helm-make helm-flx helm-descbinds helm-ag hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gandalf-theme flycheck-package flycheck-elsa flatui-theme flatland-theme farmhouse-theme eziam-theme exotica-theme evil-mc espresso-theme emr elisp-slime-nav elisp-def dracula-theme dotenv-mode doom-themes django-theme diminish darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme cyberpunk-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme chocolate-theme cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme bind-map badwolf-theme auto-compile apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes afternoon-theme ace-jump-helm-line)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
