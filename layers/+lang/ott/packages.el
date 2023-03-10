@@ -1,7 +1,8 @@
 ;; ott layer
 
 (defconst ott-packages
-  '((ott-mode :location local)))
+  '((ott-mode :location local)
+    (shite :location local)))
 
 (defun spacemacs-ott/ott-check ()
   "Check current file for ott errors"
@@ -39,10 +40,8 @@
                             (shell-quote-argument tex))))
         out))))
 
-;; TODO make this a setting, so that we don't hardcode pdf viewer
 (defun spacemacs-ott/ott-open-pdf (file)
-  (shell-command (format "zathura %s &" (shell-quote-argument file)))
-  )
+  (shite-open-with-default file))
 
 (defun ott/init-ott-mode ()
   (use-package ott-mode

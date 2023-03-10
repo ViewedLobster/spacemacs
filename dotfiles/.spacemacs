@@ -268,7 +268,7 @@ It should only modify the values of Spacemacs settings."
    ;; a non-negative integer (pixel size), or a floating-point (point size).
    ;; Point size is recommended, because it's device independent. (default 10.0)
    dotspacemacs-default-font '("JuliaMono"
-                               :size 11.0
+                               :size 15.0
                                :weight normal
                                :width normal)
 
@@ -595,6 +595,7 @@ dump."
                      c-mode
                      markdown-mode
                      ott-mode
+                     emacs-lisp-mode
                      idris-mode))
          (absolute '()))
     (progn
