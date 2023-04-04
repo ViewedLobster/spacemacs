@@ -1,8 +1,7 @@
 ;; ott layer
 
 (defconst ott-packages
-  '((ott-mode :location local)
-    (shite :location local)))
+  '((ott-mode :location local)))
 
 (defun spacemacs-ott/ott-check ()
   "Check current file for ott errors"
@@ -16,8 +15,11 @@
   "Preview ott pdf"
   (interactive)
   (let ((out (spacemacs-ott/ott-pdf)))
-    (when (spacemacs-ott/ott-pdf)
-      (spacemacs-ott/ott-open-pdf out))
+    (progn
+      (message out)
+      (when out
+        (spacemacs-ott/ott-open-pdf out))
+      )
     )
   )
 
