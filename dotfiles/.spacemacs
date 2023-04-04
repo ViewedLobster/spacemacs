@@ -2,6 +2,11 @@
 ;; This file is loaded by Spacemacs at startup.
 ;; It must be stored in your home directory.
 
+(add-to-list 'load-path
+             (file-name-directory
+              (file-truename (or load-file-name (buffer-file-name)))))
+(require 'dotspacemacs-local)
+
 (defun dotspacemacs/layers ()
   "Layer configuration:
 This function should only modify configuration layer settings."
@@ -97,7 +102,10 @@ This function should only modify configuration layer settings."
    ;; installs only the used packages but won't delete unused ones. `all'
    ;; installs *all* packages supported by Spacemacs and never uninstalls them.
    ;; (default is `used-only')
-   dotspacemacs-install-packages 'used-only))
+   dotspacemacs-install-packages 'used-only)
+
+  (dotspacemacs/local/layers-after)
+  )
 
 (defun dotspacemacs/init ()
   "Initialization:
@@ -538,7 +546,10 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-home-shorten-agenda-source nil
 
    ;; If non-nil then byte-compile some of Spacemacs files.
-   dotspacemacs-byte-compile nil))
+   dotspacemacs-byte-compile nil)
+
+  (dotspacemacs/local/init-after)
+  )
 
 (defun dotspacemacs/user-env ()
   "Environment variables setup.

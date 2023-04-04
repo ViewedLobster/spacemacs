@@ -98,3 +98,6 @@ gtags.files
 eln-cache/
 meghanada/
 vimish-fold/
+
+# my own stuff
+dotfiles/dotspacemacs-local.el
