@@ -605,6 +605,7 @@ dump."
                      c-mode
                      markdown-mode
                      ott-mode
+                     latex-mode
                      emacs-lisp-mode
                      idris-mode))
          (absolute '()))
@@ -669,6 +670,10 @@ before packages are loaded."
                                        ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
     (add-to-list 'org-export-backends 'md)
     )
+
+  ;; do not use subscripting in latex files!
+  (with-eval-after-load 'font-latex
+    (setq font-latex-fontify-script nil))
 
   (setq evil-digraphs-table-user '(((?| ?-) . ?\x22a2)
                                    ((?- ?|) . ?\x22a3)
