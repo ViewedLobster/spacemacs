@@ -74,6 +74,7 @@ This function should only modify configuration layer settings."
      idris
      typescript
      latex
+     coq
      ;; ------------------- user defined utilities ---------------
      notes
      ;;whitespace-hell
@@ -668,6 +669,11 @@ before packages are loaded."
                                        ("\\section{%s}" . "\\section*{%s}")
                                        ("\\subsection{%s}" . "\\subsection*{%s}")
                                        ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+    (add-to-list 'org-latex-classes '("tfsmeet"
+                                      "\\documentclass{lnbrfi}"
+                                      ("\\section{%s}" . "\\section*{%s}")
+                                      ("\\subsection{%s}" . "\\subsection*{%s}")
+                                      ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
     (add-to-list 'org-export-backends 'md)
     )
 
