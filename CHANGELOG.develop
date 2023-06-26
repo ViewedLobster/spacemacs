@@ -101,6 +101,8 @@ the [[file:CHANGELOG.org][CHANGELOG.org]] file.
 - The property =:powerline-scale= of variable =dotspacemacs-default-font= has
   been removed and replaced by the property =:separator-scale= used in the new
   dotfile variable =dotspacemacs-mode-line-theme=.
+- Fix issue where clicking on the recent files list in the Spacemacs buffer would
+  produce a type error.
 **** Layers
 ***** Spacemacs distribution layers
 - Key bindings:
@@ -132,6 +134,7 @@ the [[file:CHANGELOG.org][CHANGELOG.org]] file.
     in Vim editing style; disabled by default. (thanks to Benedict HW)
   - Added ~SPC m r R~ to show tide refactorings submenu (thanks to Roberto 
     Previdi)
+  - Added ~SPC m R F~ to autocorrect the current ruby file.
 - Other:
   - Support for multiple cursors using =evil-mc= is now encapsulated in the
     =multiple-cursors= layer (thanks to Codruț Constantin Gușoi)
@@ -501,6 +504,7 @@ In org-agenda-mode
 - hackernews
 - streamlink
 - twitch
+- openai (thanks to Hendrik Rommeswinkel)
 *** Renamed layers
 - =extra-langs= renamed to =major-modes= (thanks to Eivind Fonn)
 - =pdf-tools= renamed to =pdf=
@@ -1831,6 +1835,14 @@ Other:
     - Added ~SPC m s l~ for =coffee-send-line=
     - Added ~SPC m s r~ for =coffee-send-region=
     - Added ~SPC m T c~ for =coffee-cos-mode=
+**** Command-log
+- Key bindings:
+  -  ~SPC a t k h~ display keycast in buffer header (thanks to John Stevenson)
+  -  ~SPC a t k m~ display keycast in modeline (thanks to John Stevenson)
+  -  ~SPC a t k t~ display keycast in tab bar (thanks to John Stevenson)
+- Improvements:
+  - ~keycast-mode-line-insert-after~ variable used to include keycast in
+    mode-line-format (thanks to John Stevenson)
 **** Common Lisp
 - Improvements:
   - Added eval-thing-at-point functions to Common Lisp Layer
@@ -2174,7 +2186,8 @@ Other:
   - Implement performance hack for MacOS mentioned in Magit manual (thanks to
     Keith Pinson)
   - Magit Forge key bindings for editing a topic, i.e. issue, PR (thanks to
-    @practicalli-john & @nickanderson)
+  - ~SPC m d~ Magit Forge toggle draft PR key bindings (thanks to
+    @practicalli-john)
 - Fixes:
   - Install magit-svn by default and activate with git-enable-magit-svn-plugin
   - Added feature to toggle =evil-magit= based on editing style
@@ -3943,6 +3956,8 @@ files (thanks to Daniel Nicolai)
   - private/local/README.md
     - Improved instructions on how to use private/local directory for packages
       (thanks to Daniel Nicolai)
+  - layers/+lang/elm/README.org
+    - Corrected typo in description of elm-reactor (thanks to Tanya Bouman)
   - layers/+lang/python/README.org
     - Corrected typo in python language server install command (thanks to Zach
       Pearson)

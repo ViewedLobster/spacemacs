@@ -1,4 +1,4 @@
-;;; spacemacs-common.el --- Color theme with a dark and light versions.
+;;; spacemacs-theme.el --- Color theme with a dark and light versions.
 
 ;; Copyright (C) 2015-2018 Nasser Alshammari
 
@@ -512,6 +512,11 @@ to 'auto, tags may not be properly aligned. "
      `(gnus-header-name ((,class (:foreground ,comp))))
      `(gnus-header-subject ((,class (:foreground ,func :inherit bold))))
      `(gnus-summary-cancelled ((,class (:background ,war :foreground ,bg1))))
+
+;;;;; goggles
+     `(goggles-added ((,class (:background ,green-bg-s))))
+     `(goggles-changed ((,class (:background ,blue-bg-s))))
+     `(goggles-removed ((,class (:background ,red-bg-s))))
 
 ;;;;; guide-key
      `(guide-key/highlight-command-face ((,class (:foreground ,base))))
@@ -1060,10 +1065,10 @@ to 'auto, tags may not be properly aligned. "
   (add-to-list 'custom-theme-load-path
                (file-name-as-directory (file-name-directory load-file-name))))
 
-(provide 'spacemacs-common)
+(provide 'spacemacs-theme)
 
 ;; Local Variables:
 ;; no-byte-compile: t
 ;; End:
 
-;;; spacemacs-common.el ends here
+;;; spacemacs-theme.el ends here

@@ -1305,14 +1305,14 @@ startup list.")
                            (org-agenda-files))))))
            (mapcar #'expand-file-name files)))
         ;; we also need to skip sub-directories of `org-directory'
-        (ignore-directory (or (when (bound-and-true-p org-directory)
-                                (expand-file-name org-directory))
-                              ""))
+        (ignore-directory (when (bound-and-true-p org-directory)
+                            (expand-file-name org-directory)))
         (recent-files-list))
     (cl-loop for rfile in recentf-list
              while (> list-size 0)
              do (let ((full-path (expand-file-name rfile)))
-                  (unless (or (string-prefix-p ignore-directory full-path)
+                  (unless (or (and ignore-directory
+                                   (string-prefix-p ignore-directory full-path))
                               (member full-path agenda-files))
                     (cl-pushnew rfile recent-files-list)
                     (setq list-size (1- list-size))))
@@ -1402,7 +1402,8 @@ startup list.")
   (let ((dotspacemacs-startup-buffer-show-icons dotspacemacs-startup-buffer-show-icons)
         (is-org-loaded (bound-and-true-p spacemacs-initialized)))
     (if (display-graphic-p)
-        (unless (configuration-layer/package-used-p 'all-the-icons)
+        (when (and spacemacs-initialized
+                   (not (configuration-layer/package-used-p 'all-the-icons)))
           (message "Package `all-the-icons' isn't installed")
           (setq dotspacemacs-startup-buffer-show-icons nil))
       (setq dotspacemacs-startup-buffer-show-icons nil))
@@ -1486,7 +1487,7 @@ version of `widget-button-press' since `widget-button-click' doesn't work."
     (let ((pos (widget-event-point event)))
       (goto-char pos)
       (when-let ((button (get-char-property pos 'button)))
-        (widget-apply-action pos)))))
+        (widget-apply-action button)))))
 
 (defun spacemacs-buffer/jump-to-number-startup-list-line ()
   "Jump to the startup list line with the typed number.

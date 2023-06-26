@@ -50,6 +50,7 @@
     org-download
     (org-jira :toggle org-enable-jira-support)
     org-mime
+    (org-modern :toggle org-enable-modern-support)
     org-pomodoro
     org-present
     org-cliplink
@@ -121,11 +122,11 @@
     :defer t
     :init
     (progn
-      (defun spacemacs//org-babel-do-load-languages ()
-        "Load all the languages declared in `org-babel-load-languages'."
+      (define-advice org-babel-execute-src-block (:before (&rest _) load-lang)
         (org-babel-do-load-languages 'org-babel-load-languages
-                                     org-babel-load-languages))
-      (add-hook 'org-mode-hook 'spacemacs//org-babel-do-load-languages)
+                                     org-babel-load-languages)
+        (advice-remove 'org-babel-execute-src-block
+                       'org-babel-execute-src-block@load-lang))
       ;; Fix redisplay of inline images after a code block evaluation.
       (add-hook 'org-babel-after-execute-hook 'spacemacs/ob-fix-inline-images))))
 
@@ -742,6 +743,17 @@ Headline^^            Visit entry^^               Filter^^                    Da
         "em" 'org-mime-org-buffer-htmlize
         "es" 'org-mime-org-subtree-htmlize))))
 
+(defun org/init-org-modern ()
+  (use-package org-modern
+      :defer t
+      :init
+      (progn
+        (add-hook 'org-mode-hook 'org-modern-mode)
+        (add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
+
+        (spacemacs/set-leader-keys-for-major-mode 'org-mode
+            "Tm" 'org-modern-mode))))
+
 (defun org/init-org-pomodoro ()
   (use-package org-pomodoro
     :defer t
@@ -843,7 +855,7 @@ Headline^^            Visit entry^^               Filter^^                    Da
     :body
     (let ((agenda-files (org-agenda-files)))
       (if agenda-files
-          (progn (find-file (if org-persp-startup-org-file org-persp-startup-org-file (first agenda-files)))
+          (progn (find-file (if org-persp-startup-org-file org-persp-startup-org-file (cl-first agenda-files)))
                  (if org-persp-startup-with-agenda (org-agenda nil org-persp-startup-with-agenda)))
 
         (user-error "Error: No agenda files configured, nothing to display.")))))

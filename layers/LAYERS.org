@@ -265,6 +265,7 @@
   - [[#hacker-news][Hacker News]]
   - [[#layer-for-reddit][Layer for reddit]]
   - [[#lobsters][Lobsters]]
+  - [[#openai][OpenAI]]
   - [[#pocket][Pocket]]
   - [[#search-engine][Search Engine]]
   - [[#streamlink][Streamlink]]
@@ -371,17 +372,17 @@ Features:
 ** Compleseus
 [[file:+completion/compleseus/README.org][+completion/compleseus/README.org]]
 
-This layer adds a new way of completion provided by the following core packages:
-- =consult=
-- =embark=
-- =marginalia=
-- =orderless=
-- =selectrum= or =vertico=
+This layer implements completion provided by combining the following packages:
+- =selectrum= or =vertico=: vertical completion user interface
+- =consult=: useful commands using ~completing-read~
+- =embark=: provides minibuffer actions
+- =marginalia=: annotations to completion candidates
+- =orderless=: filtering enhancements
 
-This is an WIP and only supports emacs 27 or later. Please contribute.
+It only supports emacs 27 or later.
 
 Features:
-- Same features as =ivy= or =helm=
+- Similar features like =ivy= or =helm=
 
 ** Helm
 [[file:+completion/helm/README.org][+completion/helm/README.org]]
@@ -2082,7 +2083,7 @@ Features:
 - syntax-highlighting
 - Auto-completion
 - Code Navigation
-- Python test runners (see [[file:+lang/hy/../python/README.org][python layer]])
+- Python test runners (see [[file:+lang/python/README.org][python layer]])
 - Virtual Environment using [[https://github.com/jorgenschaefer/pyvenv][pyvenv]] and [[https://github.com/yyuu/pyenv][pyenv]]
 - Org Babel support
 
@@ -2573,6 +2574,7 @@ Features:
 - colorize buffer line by age of commit with [[https://github.com/syohex/emacs-smeargle][smeargle]]
 - git grep with [[https://github.com/yasuyk/helm-git-grep][helm-git-grep]]
 - org integration with magit via [[https://github.com/magit/orgit][orgit]]
+- support for code-reviews via [[https://github.com/wandersoncferreira/code-review][code-review]]
 
 New to Magit? Checkout the [[https://magit.vc/about/][official intro]] and [[https://practical.li/spacemacs/source-control/][Practicalli Spacemacs]]
 guide to configuring and using the Git and version control layers.
@@ -3384,6 +3386,18 @@ This layer adds support for reading [[https://lobste.rs/][lobsters]].
 
 Features:
 - Read Lobsters news
+
+** OpenAI
+[[file:+web-services/openai/README.org][+web-services/openai/README.org]]
+
+This layer provides applications to make requests to openai via its API.
+
+Features:
+- Provides access to openai via the emacs-openai suite of packages
+- Send visual selection or buffer and receive response in current buffer
+- Improve, edit, and document code
+- Chat sessions with chatgpt
+- Obtain AI generated images
 
 ** Pocket
 [[file:+web-services/pocket/README.org][+web-services/pocket/README.org]]

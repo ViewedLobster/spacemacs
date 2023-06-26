@@ -30,7 +30,6 @@
     flycheck
     (flycheck-rust :requires flycheck)
     ggtags
-    helm-gtags
     ron-mode
     (racer :toggle (eq rust-backend 'racer))
     rust-mode
@@ -41,34 +40,33 @@
   (use-package cargo
     :defer t
     :init
-    (progn
-      (spacemacs/declare-prefix-for-mode 'rust-mode "mc" "cargo")
-      (spacemacs/declare-prefix-for-mode 'rust-mode "mt" "tests")
-      (spacemacs/set-leader-keys-for-major-mode 'rust-mode
-        "c." 'spacemacs/cargo-process-repeat
-        "c/" 'cargo-process-search
-        "c=" 'cargo-process-fmt
-        "ca" 'spacemacs/cargo-process-add
-        "cA" 'cargo-process-audit
-        "cc" 'cargo-process-build
-        "cC" 'cargo-process-clean
-        "cd" 'cargo-process-doc
-        "cD" 'cargo-process-doc-open
-        "ce" 'cargo-process-bench
-        "cE" 'cargo-process-run-example
-        "ci" 'cargo-process-init
-        "cl" 'cargo-process-clippy
-        "cn" 'cargo-process-new
-        "co" 'cargo-process-outdated
-        "cr" 'spacemacs/cargo-process-rm
-        "cu" 'cargo-process-update
-        "cU" 'spacemacs/cargo-process-upgrade
-        "cv" 'cargo-process-check
-        "cx" 'cargo-process-run
-        "cX" 'cargo-process-run-bin
-        "ta" 'cargo-process-test
-        "tt" 'cargo-process-current-test
-        "tb" 'cargo-process-current-file-tests))))
+    (spacemacs/declare-prefix-for-mode 'rust-mode "mc" "cargo")
+    (spacemacs/declare-prefix-for-mode 'rust-mode "mt" "tests")
+    (spacemacs/set-leader-keys-for-major-mode 'rust-mode
+      "c." 'spacemacs/cargo-process-repeat
+      "c/" 'cargo-process-search
+      "c=" 'cargo-process-fmt
+      "ca" 'spacemacs/cargo-process-add
+      "cA" 'cargo-process-audit
+      "cc" 'cargo-process-build
+      "cC" 'cargo-process-clean
+      "cd" 'cargo-process-doc
+      "cD" 'cargo-process-doc-open
+      "ce" 'cargo-process-bench
+      "cE" 'cargo-process-run-example
+      "ci" 'cargo-process-init
+      "cl" 'cargo-process-clippy
+      "cn" 'cargo-process-new
+      "co" 'cargo-process-outdated
+      "cr" 'spacemacs/cargo-process-rm
+      "cu" 'cargo-process-update
+      "cU" 'spacemacs/cargo-process-upgrade
+      "cv" 'cargo-process-check
+      "cx" 'cargo-process-run
+      "cX" 'cargo-process-run-bin
+      "ta" 'cargo-process-test
+      "tt" 'cargo-process-current-test
+      "tb" 'cargo-process-current-file-tests)))
 
 (defun rust/post-init-company ()
   ;; backend specific
@@ -93,36 +91,31 @@
 (defun rust/post-init-ggtags ()
   (add-hook 'rust-mode-local-vars-hook #'spacemacs/ggtags-mode-enable))
 
-(defun rust/post-init-helm-gtags ()
-  (spacemacs/helm-gtags-define-keys-for-mode 'rust-mode))
-
 (defun rust/init-racer ()
   (use-package racer
     :defer t
     :commands racer-mode
     :config
-    (progn
-      (spacemacs/add-to-hook 'rust-mode-hook '(racer-mode))
-      (spacemacs/add-to-hook 'racer-mode-hook '(eldoc-mode))
-      (add-to-list 'spacemacs-jump-handlers-rust-mode 'racer-find-definition)
-      (spacemacs/set-leader-keys-for-major-mode 'rust-mode
-        "hh" 'spacemacs/racer-describe)
-      (spacemacs|hide-lighter racer-mode)
-      (evilified-state-evilify-map racer-help-mode-map
-        :mode racer-help-mode))))
+    (spacemacs/add-to-hook 'rust-mode-hook '(racer-mode))
+    (spacemacs/add-to-hook 'racer-mode-hook '(eldoc-mode))
+    (add-to-list 'spacemacs-jump-handlers-rust-mode 'racer-find-definition)
+    (spacemacs/set-leader-keys-for-major-mode 'rust-mode
+      "hh" 'spacemacs/racer-describe)
+    (spacemacs|hide-lighter racer-mode)
+    (evilified-state-evilify-map racer-help-mode-map
+      :mode racer-help-mode)))
 
 (defun rust/init-rust-mode ()
   (use-package rust-mode
     :defer t
     :init
-    (progn
-      (spacemacs/add-to-hook 'rust-mode-hook '(spacemacs//rust-setup-backend))
-      (spacemacs/declare-prefix-for-mode 'rust-mode "mg" "goto")
-      (spacemacs/declare-prefix-for-mode 'rust-mode "mh" "help")
-      (spacemacs/declare-prefix-for-mode 'rust-mode "m=" "format")
-      (spacemacs/set-leader-keys-for-major-mode 'rust-mode
-        "==" 'rust-format-buffer
-        "q" 'spacemacs/rust-quick-run))))
+    (spacemacs/add-to-hook 'rust-mode-hook '(spacemacs//rust-setup-backend))
+    (spacemacs/declare-prefix-for-mode 'rust-mode "mg" "goto")
+    (spacemacs/declare-prefix-for-mode 'rust-mode "mh" "help")
+    (spacemacs/declare-prefix-for-mode 'rust-mode "m=" "format")
+    (spacemacs/set-leader-keys-for-major-mode 'rust-mode
+      "==" 'rust-format-buffer
+      "q" 'spacemacs/rust-quick-run)))
 
 (defun rust/post-init-smartparens ()
   (with-eval-after-load 'smartparens
